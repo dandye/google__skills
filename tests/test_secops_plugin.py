@@ -313,3 +313,32 @@ def test_public_entry_point_secops_validation() -> None:
         text = skill_doc.read_text(encoding="utf-8")
         assert text.startswith("---")
         assert f"secops-{skill_name}" in text
+
+
+def test_secops_plugin_readme() -> None:
+    """Validate that plugins/cloud/google-secops/README.md exists and covers install and testing."""
+    readme_path = SECOPS_DIR / "README.md"
+    assert readme_path.is_file(), f"Missing README.md at {readme_path}"
+
+    content = readme_path.read_text(encoding="utf-8")
+    assert len(content) > 200
+
+    # Verify installation testing instructions
+    assert "agy plugin install" in content
+    assert "gemini extension install" in content
+
+    # Verify authentication and prerequisites
+    assert "gcloud auth application-default login" in content
+    assert "chronicle.googleapis.com/mcp" in content
+    assert "PROJECT_ID" in content
+    assert "CUSTOMER_ID" in content
+
+    # Verify slash commands coverage
+    for cmd in [
+        "/secops:triage",
+        "/secops:investigate",
+        "/secops:hunt",
+        "/secops:cases",
+        "/secops:detection-engineering",
+    ]:
+        assert cmd in content
