@@ -1,0 +1,2 @@
+description = "Triage security alerts, assess entity risk, adjust severity, and close or escalate cases."
+prompt = """Run the secops-triage skill on alert `{{args}}`."""
