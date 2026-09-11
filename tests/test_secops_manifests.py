@@ -158,3 +158,36 @@ def test_secops_public_entry_point() -> None:
         manifest = json.load(f)
     assert manifest["name"] == "google-secops"
     assert manifest["version"] == "1.1.0"
+
+
+def test_plugin_mcp_config_has_no_template_variables() -> None:
+    """Verify the Jetski plugin MCP spec ships no unsubstituted placeholders.
+
+    Jetski substitutes ``${VAR}`` in a plugin server spec's command, args,
+    serverUrl and env, but never in its headers, and it draws values from the
+    plugin user config rather than the shell environment. A templated header
+    therefore reaches the wire verbatim.
+    """
+    mcp_config_path = SECOPS_DIR / "mcp_config.json"
+    raw = mcp_config_path.read_text(encoding="utf-8")
+
+    assert "${" not in raw, (
+        f"{mcp_config_path.name} contains an unsubstitutable template variable; "
+        "Jetski will send it to the server verbatim"
+    )
+
+
+def test_gemini_extension_templates_are_declared() -> None:
+    """Verify every ``${VAR}`` in gemini-extension.json is a declared setting."""
+    extension_path = SECOPS_DIR / "gemini-extension.json"
+    raw = extension_path.read_text(encoding="utf-8")
+    data = json.loads(raw)
+
+    declared = {setting["name"] for setting in data.get("settings", [])}
+    referenced = set(re.findall(r"\$\{(\w+)\}", raw))
+
+    undeclared = referenced - declared
+    assert not undeclared, (
+        f"gemini-extension.json references undeclared variables {sorted(undeclared)}; "
+        "these ship as literal strings and can override real credentials"
+    )

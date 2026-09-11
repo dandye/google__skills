@@ -21,15 +21,38 @@ Enables end-to-end incident lifecycle management: case creation, queue monitorin
 alert grouping and linking, forensic note-taking, priority and status updates,
 and formal case closure with root-cause tracking.
 
-## Tool Selection & Availability Strategy
+## Tool Availability Preconditions
 
-When executing case management actions, determine tool availability in the active
-environment and apply the following selection hierarchy:
+This skill requires a Google SecOps MCP server. Before any other action, confirm that a
+`list_cases` tool is present in your registered tools.
 
-1. **Remote MCP Tools (Primary)**: Always prioritize remote tools exposed by the
+If no SecOps case tool is registered, STOP and report exactly this, then end the turn:
+
+> The Google SecOps MCP server is not connected in this session. Tools are registered at
+> startup; a mid-session configuration change will not take effect. Restart the CLI with
+> valid credentials, then verify with `ls -1 ~/.gemini/jetski/mcp/`.
+
+You MUST NOT, under any circumstances:
+
+- Construct raw HTTP or JSON-RPC calls to Chronicle endpoints.
+- Run `gcloud auth print-access-token`, `gcloud auth application-default print-access-token`,
+  or otherwise mint credentials.
+- Read or enumerate credential material (`~/.ssh`, service account `*.json` key files,
+  `gcloud auth list`, `gcloud config` inspection).
+- Attempt any IAM modification, including granting roles to yourself or to a service account.
+- Substitute a different project, customer ID, region, or tenant from the configured one.
+
+A missing tool is a configuration failure to report, never an obstacle to route around.
+
+### Tool Selection Hierarchy
+
+When case tools are registered, apply this selection order:
+
+1. **Remote MCP Tools (Primary)**: Prioritize remote tools exposed by the
    `google-security-operations` MCP server.
-2. **Local MCP Tools (Fallback)**: Fall back to local Python MCP server tools if
-   remote tools are not registered or reachable.
+2. **Local MCP Tools (Alternate)**: Use local Python MCP server tools only when they are
+   themselves registered in the session and the remote equivalent is absent from the tool
+   list. An unregistered local server is not a fallback; it is the stop condition above.
 
 ### Tenant Parameters & Environment
 
@@ -46,7 +69,7 @@ Always pass these parameters directly. Do not spend turns running discovery comm
 | :--- | :--- | :--- | :--- |
 | **List Cases** | `list_cases` | `list_cases` | Query active or historical incident cases. |
 | **Get Case Details** | `get_case` | `get_case_full_details` | Remote `get_case` supports `expand='tasks,tags,products'`. Local aggregates alerts and comments. |
-| **Create Case** | `create_case` | `create_case` | Manually initiate cases for ad-hoc investigations. |
+| **Create Case** | Not available | `create_case` | The remote MCP server exposes no `create_case` tool. Cases originate from alert ingestion. Manual creation requires the local MCP server or the SOAR UI. |
 | **Update Case** | `update_case` | `change_case_priority`, `update_case_description` | Remote updates priority, status, and assignee. Local has dedicated modular tools. |
 | **Add Comment** | `create_case_comment` | `post_case_comment` | Record analyst findings, remediation steps, and audit logs. |
 | **Close Case** | `execute_bulk_close_case` | `close_case` | Conclude incident with root cause, reason enum, and tags. |
@@ -90,7 +113,9 @@ from external communication, or initiates an ad-hoc threat hunting finding.
   - `description` (str, optional): Incident context, affected scope, and detection vector.
   - `environment` (str, optional): Target tenant or organizational environment.
 - **Tool Invocations**:
-  - **Remote**: `create_case(name=..., priority=..., description=..., environment=...)`
+  - **Remote**: Not supported. The remote MCP server exposes no `create_case` tool. If only
+    remote tools are registered, report that manual case creation is unavailable and direct
+    the analyst to the SOAR UI. Do not simulate the call by another means.
   - **Local**: `create_case(name=..., priority=..., description=..., environment=...)`
 - **Post-Creation Actions**:
   1. Record the returned `case_id`.

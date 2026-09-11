@@ -54,6 +54,33 @@ export REGION="us" # or your Chronicle region (e.g. europe-west1)
 export SERVER_URL="https://chronicle.us.rep.googleapis.com/mcp"
 ```
 
+### 5. Preflight Verification
+
+Agent runtimes register MCP tools once, at startup. If the connection fails, the session
+simply has no SecOps tools; there is usually no error and no prompt. Verify before you
+launch:
+
+```bash
+scripts/preflight_secops.sh
+```
+
+Two consequences follow from startup-only registration:
+
+* Credentials are read from the process environment of the CLI **at launch**. If you rely
+  on `direnv` or a `.env` file, enter the project directory before starting the CLI.
+  Launching from elsewhere, or from a desktop launcher, silently falls back to whatever
+  global ADC is present.
+* A configuration change made mid-session takes effect only after a restart.
+
+After launching, confirm the server actually connected:
+
+```bash
+ls -1 ~/.gemini/jetski/mcp/
+```
+
+A directory named for the server appears only once a session has connected and listed its
+tools successfully. Its absence means the connection failed.
+
 ---
 
 ## Testing Plugin Installation

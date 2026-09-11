@@ -59,8 +59,7 @@
         ]
       },
       "headers": {
-        "x-goog-user-project": "${PROJECT_ID}",
-        "Authorization": "Bearer ${BEARER_TOKEN}"
+        "x-goog-user-project": "${PROJECT_ID}"
       },
       "env": {
         "PROJECT_ID": "${PROJECT_ID}",

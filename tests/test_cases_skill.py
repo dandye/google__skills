@@ -165,3 +165,75 @@ def test_cases_command_defined() -> None:
     assert "secops-cases" in data["prompt"] or "cases" in data["prompt"], (
         "Command prompt must reference the cases skill"
     )
+
+
+def test_cases_skill_declares_tool_availability_preconditions() -> None:
+    """Verify SKILL.md instructs the agent to stop when no case tool is registered."""
+    content = CASES_SKILL_PATH.read_text(encoding="utf-8")
+    _, body = parse_frontmatter(content)
+
+    assert "Tool Availability Preconditions" in body, (
+        "SKILL.md must declare a 'Tool Availability Preconditions' section"
+    )
+    assert "STOP" in body, (
+        "SKILL.md must instruct the agent to STOP when no case tool is registered"
+    )
+    assert "configuration failure to report" in body, (
+        "SKILL.md must frame a missing tool as a configuration failure, not an obstacle"
+    )
+
+
+def test_cases_skill_forbids_credential_and_iam_workarounds() -> None:
+    """Verify SKILL.md prohibits the improvised workarounds seen in incident triage.
+
+    With no registered tool, an agent previously harvested service account keys,
+    minted access tokens, probed unrelated tenants, and attempted to grant itself
+    an IAM role. Each of those routes must be explicitly closed.
+    """
+    content = CASES_SKILL_PATH.read_text(encoding="utf-8")
+    _, body = parse_frontmatter(content)
+
+    assert "MUST NOT" in body, "SKILL.md must contain an explicit prohibition list"
+
+    prohibitions = {
+        "raw HTTP or JSON-RPC": "constructing raw Chronicle API calls",
+        "print-access-token": "minting credentials via gcloud",
+        "~/.ssh": "enumerating credential material",
+        "IAM modification": "self-granting IAM roles",
+        "Substitute a different project": "switching to another tenant",
+    }
+    for needle, description in prohibitions.items():
+        assert needle in body, f"SKILL.md must prohibit {description}"
+
+
+def test_cases_skill_has_no_permissive_fallback_clause() -> None:
+    """Verify the unreachable-server fallback clause has not been reintroduced."""
+    content = CASES_SKILL_PATH.read_text(encoding="utf-8")
+    _, body = parse_frontmatter(content)
+
+    assert "Fall back to local Python MCP server tools" not in body, (
+        "The permissive fallback clause licenses workarounds and must not return"
+    )
+    assert "not registered or reachable" not in body, (
+        "Unreachability must be a stop condition, not a trigger for an alternate path"
+    )
+
+
+def test_cases_skill_does_not_advertise_remote_create_case() -> None:
+    """Verify the capability matrix does not claim a remote create_case tool.
+
+    The remote Chronicle MCP server exposes 71 tools and create_case is not one
+    of them. Advertising it invites the agent to improvise a substitute.
+    """
+    content = CASES_SKILL_PATH.read_text(encoding="utf-8")
+    _, body = parse_frontmatter(content)
+
+    matrix_rows = [
+        line for line in body.splitlines() if line.startswith("| **Create Case**")
+    ]
+    assert len(matrix_rows) == 1, "Expected exactly one 'Create Case' capability row"
+
+    remote_cell = matrix_rows[0].split("|")[2].strip()
+    assert remote_cell == "Not available", (
+        f"Remote create_case does not exist; matrix claims {remote_cell!r}"
+    )
