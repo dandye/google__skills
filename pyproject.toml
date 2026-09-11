@@ -68,6 +68,8 @@ exclude = [
     "build",
     "dist",
     "__pycache__",
+    "skills",
+    "external",
 ]
 
 [tool.ruff.lint]
