@@ -1,0 +1,23 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "google-secops",
+  "version": "1.1.0",
+  "description": "Essential Security Operations skills for Triage, Investigation, and Hunting.",
+  "author": {
+    "name": "Google LLC",
+    "url": "https://cloud.google.com/security"
+  },
+  "homepage": "https://github.com/google/skills/tree/main/plugins/cloud/google-secops",
+  "repository": "https://github.com/google/skills",
+  "license": "Apache-2.0",
+  "keywords": [
+    "google-secops",
+    "chronicle",
+    "security-operations",
+    "siem",
+    "soar",
+    "triage",
+    "investigation",
+    "threat-hunting"
+  ]
+}
