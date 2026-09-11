@@ -10,6 +10,18 @@
     "skills/cases",
     "skills/detection-engineering"
   ],
+  "commands": [
+    "commands/secops/cases.toml",
+    "commands/secops/detection-engineering.toml",
+    "commands/secops/hunt.toml",
+    "commands/secops/investigate.toml",
+    "commands/secops/triage.toml"
+  ],
+  "agents": [
+    "agents/secops-triage-analyst.md",
+    "agents/secops-investigator.md",
+    "agents/secops-detection-engineer.md"
+  ],
   "settings": [
     {
       "name": "PROJECT_ID",
