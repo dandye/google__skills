@@ -1,0 +1,2 @@
+description = "Investigate security incidents, entities, UDM events, timelines, and lateral movement."
+prompt = """Run the secops-investigate skill on case `{{args}}`."""
