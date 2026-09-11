@@ -1,0 +1,188 @@
+---
+name: secops-cases
+metadata:
+  category: SecurityOperations
+  author: Google LLC
+  version: 1.1.0
+  status: published
+description: >-
+  Manage Google Security Operations (SecOps) SOAR cases throughout their lifecycle.
+  Use when listing, creating, inspecting, updating, or closing SOAR cases; adding
+  investigative comments and notes; updating case priority or description; or linking
+  and grouping security alerts within cases. Supports both remote Google SecOps MCP
+  tools and local fallback tools. Don't use for SIEM UDM searches or detection rule
+  authoring.
+---
+
+# Google SecOps Case Management Skill for AI Agents
+
+Operates and manages incident cases within Google Security Operations (Chronicle SOAR).
+Enables end-to-end incident lifecycle management: case creation, queue monitoring,
+alert grouping and linking, forensic note-taking, priority and status updates,
+and formal case closure with root-cause tracking.
+
+## Tool Selection & Availability Strategy
+
+When executing case management actions, determine tool availability in the active
+environment and apply the following selection hierarchy:
+
+1. **Remote MCP Tools (Primary)**: Always prioritize remote tools exposed by the
+   `google-security-operations` MCP server.
+2. **Local MCP Tools (Fallback)**: Fall back to local Python MCP server tools if
+   remote tools are not registered or reachable.
+
+### Tool Capability Matrix
+
+| Capability | Remote MCP Tool | Local MCP Tool | Notes |
+| :--- | :--- | :--- | :--- |
+| **List Cases** | `list_cases` | `list_cases` | Query active or historical incident cases. |
+| **Get Case Details** | `get_case` | `get_case_full_details` | Remote `get_case` supports `expand='tasks,tags,products'`. Local aggregates alerts and comments. |
+| **Create Case** | `create_case` | `create_case` | Manually initiate cases for ad-hoc investigations. |
+| **Update Case** | `update_case` | `change_case_priority`, `update_case_description` | Remote updates priority, status, and assignee. Local has dedicated modular tools. |
+| **Add Comment** | `create_case_comment` | `post_case_comment` | Record analyst findings, remediation steps, and audit logs. |
+| **Close Case** | `execute_bulk_close_case` | `close_case` | Conclude incident with root cause, reason enum, and tags. |
+| **List Case Alerts** | `list_case_alerts` | `list_alerts_by_case` | Retrieve all alerts associated with a specific case. |
+| **Alert Grouping & Events** | `list_connector_events` | `list_alert_group_identifiers_by_case`, `list_events_by_alert` | Group related alerts and inspect raw trigger events. |
+| **Involved Entities** | `list_involved_entities` | `get_entities_by_alert_group_identifiers`, `search_entity` | Inspect assets, users, IPs, and hashes tied to case alerts. |
+
+---
+
+## Standard Workflows
+
+### 1. Listing and Filtering Cases
+
+Use to survey active queues, identify assigned workloads, or find existing cases
+related to ongoing investigations.
+
+- **Action**: Invoke `list_cases`.
+- **Filtering Options**:
+  - Filter by environment, priority, status (Open, Closed), or assigned analyst.
+  - Use pagination parameters (`next_page_token` or `pageToken`) when querying broad queues.
+- **Output Presentation**: Display results in a clear markdown table:
+  | Case ID | Title | Priority | Status | Assignee | Created Time |
+  | :--- | :--- | :--- | :--- | :--- | :--- |
+
+```markdown
+Example:
+Call `list_cases` with status="Open" and priority="PriorityHigh" to review top urgent incidents.
+```
+
+---
+
+### 2. Creating a Case
+
+Use when an analyst detects a security incident manually, receives an escalation
+from external communication, or initiates an ad-hoc threat hunting finding.
+
+- **Required & Key Parameters**:
+  - `name` / `title` (str, required): Concise, descriptive summary (e.g., `"Suspicious Lateral Movement - Host HR-WS-04"`).
+  - `priority` (str, optional): One of `PriorityUnspecified`, `PriorityInfo`, `PriorityLow`, `PriorityMedium`, `PriorityHigh`, `PriorityCritical`.
+  - `description` (str, optional): Incident context, affected scope, and detection vector.
+  - `environment` (str, optional): Target tenant or organizational environment.
+- **Tool Invocations**:
+  - **Remote**: `create_case(name=..., priority=..., description=..., environment=...)`
+  - **Local**: `create_case(name=..., priority=..., description=..., environment=...)`
+- **Post-Creation Actions**:
+  1. Record the returned `case_id`.
+  2. Post an initial investigation comment documenting the creation trigger.
+  3. Associate known entity indicators or link relevant alerts.
+
+---
+
+### 3. Case Inspection and Alert Linking
+
+Cases group one or more related security alerts that represent a single attack
+chain or incident scope. Alert linking connects new detections to existing cases.
+
+- **Step 1: Retrieve Case Context**
+  - **Remote**: Call `get_case(case_id=..., expand="tasks,tags,products")`.
+  - **Local**: Call `get_case_full_details(case_id=...)`.
+- **Step 2: Inspect Associated Alerts**
+  - **Remote**: Call `list_case_alerts(case_id=...)`.
+  - **Local**: Call `list_alerts_by_case(case_id=...)`.
+- **Step 3: Analyze Alert Grouping & Evidence**
+  - Identify alert group identifiers using `list_alert_group_identifiers_by_case`.
+  - Retrieve underlying raw connector events using `list_connector_events` (Remote) or `list_events_by_alert` (Local).
+  - Retrieve involved entities using `list_involved_entities` (Remote) or `get_entities_by_alert_group_identifiers` (Local).
+- **Step 4: Correlate and Link Alerts**
+  - When investigating incoming alerts that share indicators (same target host, compromised user credentials, or command-and-control IP) with an open case, group or associate the alert with the existing `case_id` rather than generating redundant cases.
+  - Document the alert correlation rationale in a case comment.
+
+---
+
+### 4. Updating Case Priority and Status
+
+As evidence emerges during an investigation, adjust the case severity and
+operational stage to reflect current risk.
+
+- **Priority Levels**:
+  - `PriorityInfo`: Informational events with no immediate operational impact.
+  - `PriorityLow`: Low severity, standard tracking, no business disruption.
+  - `PriorityMedium`: Anomalous behavior requiring validation within standard SLA.
+  - `PriorityHigh`: Active exploit attempts or confirmed credential misuse.
+  - `PriorityCritical`: Confirmed breach, active ransomware, or sensitive data exfiltration.
+- **Updating Priority**:
+  - **Remote**: Call `update_case(case_id=..., priority="PriorityHigh")`.
+  - **Local**: Call `change_case_priority(case_id=..., case_priority="PriorityHigh")`.
+- **Updating Description & Scope**:
+  - When the attack vector or blast radius is confirmed, update the case summary.
+  - **Remote**: Call `update_case(case_id=..., description="...")`.
+  - **Local**: Call `update_case_description(case_id=..., description="...")`.
+- **Updating Lifecycle Stage & Assignment**:
+  - **Remote**: Call `update_case(case_id=..., status=..., assignee=...)`.
+  - **Local**: Call `change_case_stage(case_id=..., stage=...)` and `assign_case(case_id=..., user=...)`.
+
+---
+
+### 5. Adding Case Comments and Investigation Notes
+
+Document every investigative step, enrichment finding, and remediation action
+to maintain an auditable chain of custody.
+
+- **When to Comment**:
+  - Documenting SIEM UDM search results or IOC matches.
+  - Recording host isolation, password reset, or IP blocking actions.
+  - Summarizing communications with asset owners or incident commanders.
+- **Tool Invocations**:
+  - **Remote**: Call `create_case_comment(case_id=..., comment=...)`.
+  - **Local**: Call `post_case_comment(case_id=..., comment=...)`.
+- **Comment Format Standard**:
+  ```markdown
+  ### Investigation Note: [Topic]
+  - **Timestamp / Phase**: Triage / Containment / Remediation
+  - **Findings**: Summary of extracted artifacts and validated activity.
+  - **Entities Involved**: Host: `hr-ws-04`, User: `jdoe`, IP: `198.51.100.22`
+  - **Actions Taken**: Blocked external IP on firewall; forced credential rotation.
+  - **Next Steps**: Monitor authentication logs for recurring anomalies.
+  ```
+
+---
+
+### 6. Case Closure and Final Determination
+
+When containment and verification are complete, close the case with full
+attribution and categorical categorization.
+
+- **Closure Criteria**:
+  - All linked alerts have been investigated.
+  - Containment and remediation actions are validated.
+  - Final executive summary is recorded in comments.
+- **Closure Categorization Enums**:
+  - `Malicious`: Confirmed security threat or unauthorized activity.
+  - `NotMalicious`: Benign true positive or authorized administrative activity.
+  - `Maintenance`: Expected alert triggered by scheduled testing or system maintenance.
+  - `Inconclusive`: Insufficient telemetry to confirm or refute malicious intent.
+- **Tool Invocations**:
+  - **Remote**: Call `execute_bulk_close_case(case_ids=[...], root_cause="...", reason="NotMalicious", comment="...")`.
+  - **Local**: Call `close_case(case_id=..., root_cause="...", reason="NotMalicious", comment="...", tags="...")`.
+- **Verification**:
+  - Call `list_cases` or `get_case` to confirm status reflects closed state.
+
+---
+
+## Best Practices & Safety Guardrails
+
+1. **Always Verify Case Existence Before Updates**: Fetch case details with `get_case` or `get_case_full_details` before modifying priority, comments, or status.
+2. **Never Close Without Documented Root Cause**: Every case closure must include a specific root cause and explanatory comment.
+3. **Preserve Case History**: Append notes via comments rather than overwriting descriptions unless correcting factual inaccuracies.
+4. **Correlate Before Creating**: Before creating a new case, search existing open cases (`list_cases`) to prevent duplicate incident records for the same alert cluster.
