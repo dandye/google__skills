@@ -141,6 +141,11 @@ repo to install.
   - [**GKE Workload Security**](./skills/cloud/gke-workload-security)
   - [**Google Cloud IAM Access Troubleshooter & Remediation Orchestrator**](./skills/cloud/iam-helper-for-troubleshooting)
   - [**Google Cloud Security Command Center Query Skill**](./skills/cloud/google-cloud-scc-query)
+  - [**Google SecOps Alert Triage**](./plugins/cloud/google-secops/skills/triage)
+  - [**Google SecOps Case Management**](./plugins/cloud/google-secops/skills/cases)
+  - [**Google SecOps Detection Engineering**](./plugins/cloud/google-secops/skills/detection-engineering)
+  - [**Google SecOps Incident & Entity Investigation**](./plugins/cloud/google-secops/skills/investigate)
+  - [**Google SecOps Threat Hunting**](./plugins/cloud/google-secops/skills/hunt)
   - [**IAM Helper for Policy Management**](./skills/cloud/iam-helper-for-policy-management)
   - [**IAM Policy Simulator (v1 Allow)**](./skills/cloud/iam-helper-for-policy-simulator)
   - [**Privileged Access Manager (PAM)**](./skills/cloud/iam-helper-for-privileged-access-management)
@@ -182,6 +187,16 @@ repo to install.
 ## Plugins
 
 This repo also bundles Google product plugins (Skills + MCP servers) for agent harnesses.
+
+### Available Plugins
+
+| Plugin | Path | Description |
+| :--- | :--- | :--- |
+| **Google SecOps** | [`plugins/cloud/google-secops`](./plugins/cloud/google-secops) | Essential Security Operations skills for Triage, Investigation, Hunting, Cases, and Detection Engineering. |
+| **Google Cloud Developer** | [`plugins/cloud/google-cloud-developer`](./plugins/cloud/google-cloud-developer) | Core developer workflows, documentation retrieval, and gcloud CLI assistance. |
+| **Data Cloud (Data Agent Kit)** | [`plugins/cloud/data-agent-kit`](./plugins/cloud/data-agent-kit) | Data Cloud plugins for AlloyDB, BigQuery, Cloud SQL, Spanner, and more. |
+
+### Installation
 
 | Agent harness | Install |
 | :--- | :--- |
