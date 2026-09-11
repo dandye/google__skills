@@ -1,0 +1,2 @@
+description = "Author, test, validate YARA-L rules, and evaluate detection coverage gaps in Google SecOps."
+prompt = """Run the secops-detection-engineering skill for `{{args}}`."""
