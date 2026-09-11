@@ -81,3 +81,9 @@ yarn-error.log*
 
 # Agent Development Kit (ADK) & Agent Caches
 .adk/
+.worktrees/
+.agent/state
+.agent/state/
+.agy-env
+.cache/
+.kanban-config.json
