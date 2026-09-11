@@ -1,0 +1,2 @@
+description = "Proactively hunt for undetected threats, IoCs, TTPs, and behavioral outliers."
+prompt = """Run the secops-hunt skill for `{{args}}`."""
