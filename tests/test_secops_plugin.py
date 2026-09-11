@@ -342,3 +342,35 @@ def test_secops_plugin_readme() -> None:
         "/secops:detection-engineering",
     ]:
         assert cmd in content
+
+
+def test_skills_contain_no_harness_specific_paths() -> None:
+    """Verify agent-facing skill text names no single harness's filesystem layout.
+
+    This plugin ships to Claude Code, Gemini CLI, Codex and Antigravity. A skill
+    that tells the agent to inspect ``~/.gemini/jetski/mcp/`` produces advice that
+    is simply wrong on three of the four. Harness-specific instructions belong in
+    the README, where they can be labelled per harness.
+    """
+    forbidden = {
+        "~/.gemini": "Gemini CLI / Antigravity config dir",
+        "jetski": "Antigravity internal name",
+        "~/.claude": "Claude Code config dir",
+        ".codex": "Codex config dir",
+        "agy ": "Antigravity CLI binary",
+    }
+
+    offenders = []
+    for skill_path in sorted((SECOPS_DIR / "skills").rglob("SKILL.md")):
+        text = skill_path.read_text(encoding="utf-8")
+        for i, line in enumerate(text.splitlines(), 1):
+            for needle, what in forbidden.items():
+                if needle in line:
+                    rel = skill_path.relative_to(SECOPS_DIR)
+                    offenders.append(
+                        f"{rel}:{i} references {what}: {line.strip()[:80]}"
+                    )
+
+    assert not offenders, (
+        "Harness-specific paths in agent-facing skill text:\n" + "\n".join(offenders)
+    )

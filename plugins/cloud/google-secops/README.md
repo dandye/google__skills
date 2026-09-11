@@ -72,14 +72,16 @@ Two consequences follow from startup-only registration:
   global ADC is present.
 * A configuration change made mid-session takes effect only after a restart.
 
-After launching, confirm the server actually connected:
+After launching, confirm the server actually connected. The command differs per harness:
 
-```bash
-ls -1 ~/.gemini/jetski/mcp/
-```
+| Harness | Verify connection |
+| :--- | :--- |
+| Claude Code | `claude mcp list` |
+| Gemini CLI | `gemini mcp list` |
+| Antigravity (`agy`) | `ls -1 ~/.gemini/jetski/mcp/` |
 
-A directory named for the server appears only once a session has connected and listed its
-tools successfully. Its absence means the connection failed.
+A server that failed to connect will be absent, or listed without its tools. Do not rely on
+a configuration listing: most harnesses show what is *configured*, not what is *connected*.
 
 ---
 

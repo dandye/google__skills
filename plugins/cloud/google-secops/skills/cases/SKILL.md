@@ -28,9 +28,10 @@ This skill requires a Google SecOps MCP server. Before any other action, confirm
 
 If no SecOps case tool is registered, STOP and report exactly this, then end the turn:
 
-> The Google SecOps MCP server is not connected in this session. Tools are registered at
-> startup; a mid-session configuration change will not take effect. Restart the CLI with
-> valid credentials, then verify with `ls -1 ~/.gemini/jetski/mcp/`.
+> The Google SecOps MCP server is not connected in this session. MCP tools are registered
+> when the agent client starts, so a configuration change made mid-session will not take
+> effect. Restart the client with valid credentials and confirm the server is listed as
+> connected before retrying.
 
 You MUST NOT, under any circumstances:
 

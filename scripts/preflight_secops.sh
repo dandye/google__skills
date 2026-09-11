@@ -2,9 +2,10 @@
 #
 # Preflight check for the Google SecOps MCP server.
 #
-# Jetski registers MCP tools once, at startup. If the connection fails the
-# session simply has no SecOps tools and reports no error, so run this before
-# launching the CLI. Ten seconds here replaces a long archaeology session.
+# Agent clients register MCP tools once, when they start. If the connection
+# fails the session simply has no SecOps tools and usually reports no error,
+# so run this before launching. Ten seconds here replaces a long archaeology
+# session.
 #
 # Usage: scripts/preflight_secops.sh
 
