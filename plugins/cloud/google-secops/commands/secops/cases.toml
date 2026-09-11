@@ -1,1 +1,2 @@
-prompt = """Run the secops-cases skill."""
+description = "Manage Google SecOps SOAR cases, tasks, comments, and alert associations."
+prompt = """Run the secops-cases skill for `{{args}}`."""
