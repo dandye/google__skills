@@ -109,11 +109,36 @@ Codex utilizes `.codex-plugin/plugin.json` pointing to `./skills/` for skill dis
 
 ---
 
+## Specialized Agents
+
+The plugin bundles three specialized agents tailored for SOC operations and detection engineering. In Gemini CLI and Antigravity, invoke them directly using the `@` syntax or delegate tasks via subagent dispatch:
+
+| Agent | Purpose | Primary Capabilities |
+| :--- | :--- | :--- |
+| `secops-triage-analyst` | Alert Triage | Evaluates detection metadata, scores entity risk, deduplicates alerts, calibrates severity, and dispatches dispositions. |
+| `secops-investigator` | Incident Investigation | Conducts multi-hop entity pivoting, UDM graph exploration, parent-child process tree analysis, and timeline reconstruction. |
+| `secops-detection-engineer` | Detection Engineering | Authors and validates YARA-L 2.0 detection rules, performs retrospective testing against historical UDM logs, and tunes alert filters. |
+
+### Example Invocations
+
+```bash
+# Direct task to the triage analyst
+@secops-triage-analyst Triage alert "alert-84920" and assess principal entity risk.
+
+# Direct task to the incident investigator
+@secops-investigator Reconstruct the process and network timeline for host "finance-srv-01".
+
+# Direct task to the detection engineer
+@secops-detection-engineer Validate and backtest the YARA-L rule for suspicious PowerShell execution.
+```
+
+---
+
 ## Verification and Smoke Testing
 
 ### 1. Verify Slash Commands
 
-Once installed, verify that the following slash commands appear in your agent autocomplete menu:
+Because the command definition files are located in `commands/secops/*.toml`, Gemini CLI automatically namespaces them with a colon (`/secops:<command>`):
 
 | Slash Command | Skill Bound | Function |
 | :--- | :--- | :--- |
@@ -122,6 +147,15 @@ Once installed, verify that the following slash commands appear in your agent au
 | `/secops:hunt` | `skills/hunt` | Threat hunting hypotheses, IoC retroactive sweeps |
 | `/secops:cases` | `skills/cases` | SOAR case creation, listing, comments, status |
 | `/secops:detection-engineering` | `skills/detection-engineering` | YARA-L rule authoring, validation, test backtesting |
+
+> [!NOTE]
+> Gemini CLI compiles extension commands on startup. If you install or link the extension while a CLI session is already open, restart the session to register the slash commands.
+>
+> For instant project-level access without extension installation, symlink the commands directly:
+> ```bash
+> mkdir -p .gemini/commands
+> ln -sfn $(pwd)/plugins/cloud/google-secops/commands/secops .gemini/commands/secops
+> ```
 
 ### 2. Verify Remote MCP Connectivity
 
@@ -178,6 +212,10 @@ plugins/cloud/google-secops/
 │       ├── hunt.toml
 │       ├── investigate.toml
 │       └── triage.toml
+├── agents/                        # Specialized subagent definitions
+│   ├── secops-detection-engineer.md
+│   ├── secops-investigator.md
+│   └── secops-triage-analyst.md
 └── skills/                        # Packaged agent skills (with YAML frontmatter)
     ├── cases/
     │   └── SKILL.md
