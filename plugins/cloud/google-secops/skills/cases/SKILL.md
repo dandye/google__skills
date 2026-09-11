@@ -31,6 +31,15 @@ environment and apply the following selection hierarchy:
 2. **Local MCP Tools (Fallback)**: Fall back to local Python MCP server tools if
    remote tools are not registered or reachable.
 
+### Tenant Parameters & Environment
+
+All remote MCP tools require three tenant identifiers passed in `Arguments`:
+- `projectId`: Google Cloud Project ID (read from environment variable `PROJECT_ID`).
+- `customerId`: Chronicle Customer ID GUID (read from environment variable `CUSTOMER_ID`).
+- `region`: Chronicle instance region (read from environment variable `REGION`, default to `"us"` if unset).
+
+Always pass these parameters directly. Do not spend turns running discovery commands or probing filesystem paths.
+
 ### Tool Capability Matrix
 
 | Capability | Remote MCP Tool | Local MCP Tool | Notes |
@@ -54,10 +63,11 @@ environment and apply the following selection hierarchy:
 Use to survey active queues, identify assigned workloads, or find existing cases
 related to ongoing investigations.
 
-- **Action**: Invoke `list_cases`.
+- **Action**: Invoke `list_cases(projectId=..., customerId=..., region=..., pageSize=...)`.
 - **Filtering Options**:
   - Filter by environment, priority, status (Open, Closed), or assigned analyst.
   - Use pagination parameters (`next_page_token` or `pageToken`) when querying broad queues.
+- **Empty Queue Handling**: If `list_cases` returns an empty object `{}` or no cases, directly report that the tenant queue currently contains 0 matching cases. Do NOT attempt to query alternate tenants or run permission discovery commands.
 - **Output Presentation**: Display results in a clear markdown table:
   | Case ID | Title | Priority | Status | Assignee | Created Time |
   | :--- | :--- | :--- | :--- | :--- | :--- |
