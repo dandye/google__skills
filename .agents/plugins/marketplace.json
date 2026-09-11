@@ -233,6 +233,11 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Cloud Platform"
+    },
+    {
+      "name": "google-secops",
+      "source": "./plugins/cloud/google-secops",
+      "description": "Security Operations skills for Google Security Operations (Chronicle SIEM and SOAR): alert triage, incident investigation, threat hunting, SOAR case management, and YARA-L detection engineering. Includes the remote Google SecOps MCP server."
     }
   ]
 }

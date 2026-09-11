@@ -248,21 +248,34 @@ def test_referenced_mcp_servers_exist() -> None:
     assert secops_mcp.get("type") == "streamable-http"
     assert "chronicle" in secops_mcp.get("url", "")
 
-    # 2. Claude plugin MCP reference
+    # 2. Claude Code MCP configuration.
+    #
+    # Claude reads `.mcp.json` at the plugin root. A `"mcpServers": "./path"`
+    # string in .claude-plugin/plugin.json is silently ignored: verified against
+    # Claude Code 2.1.269, where that layout reports "MCP servers (0)" while an
+    # identical server in .mcp.json reports "MCP servers (1)".
+    dot_mcp_path = SECOPS_DIR / ".mcp.json"
+    assert dot_mcp_path.is_file(), (
+        "Missing .mcp.json at the plugin root. Without it Claude Code loads no "
+        "MCP servers and the SecOps tools are unavailable there."
+    )
+    with open(dot_mcp_path, encoding="utf-8") as f:
+        dot_mcp_data = json.load(f)
+    assert "google-security-operations" in dot_mcp_data.get("mcpServers", {})
+    claude_server = dot_mcp_data["mcpServers"]["google-security-operations"]
+    assert claude_server.get("type") == "http", (
+        "Claude expects a transport type of 'http' for a remote MCP server"
+    )
+    assert "chronicle" in claude_server.get("url", "")
+
     claude_path = SECOPS_DIR / ".claude-plugin" / "plugin.json"
     assert claude_path.is_file(), f"Missing {claude_path}"
     with open(claude_path, encoding="utf-8") as f:
         claude_data = json.load(f)
-    assert "mcpServers" in claude_data
-    claude_mcp_ref = claude_data["mcpServers"].lstrip("./")
-    mcp_config_path = (SECOPS_DIR / claude_mcp_ref).resolve()
-    assert mcp_config_path.is_file(), (
-        f"Referenced MCP config {mcp_config_path} does not exist"
+    assert "mcpServers" not in claude_data, (
+        "Claude ignores an mcpServers path in plugin.json; declaring one there "
+        "advertises support that does not exist. Use .mcp.json instead."
     )
-    with open(mcp_config_path, encoding="utf-8") as f:
-        mcp_config_data = json.load(f)
-    assert "mcpServers" in mcp_config_data
-    assert "google-security-operations" in mcp_config_data["mcpServers"]
 
     # 3. Gemini extension MCP configuration
     gemini_path = SECOPS_DIR / "gemini-extension.json"

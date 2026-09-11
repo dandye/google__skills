@@ -88,3 +88,7 @@ clean:
     find . -type f -name "*.pyc" -delete
     find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
     rm -rf .pytest_cache .mypy_cache .ruff_cache .coverage htmlcov dist build *.egg-info
+
+# Run the cross-harness clean-room verification in a container
+harness-test:
+    ./scripts/harness-test/run.sh

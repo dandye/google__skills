@@ -186,3 +186,45 @@ def test_public_entry_point_and_jq_validation() -> None:
         assert proc.returncode == 0, (
             f"jq validation failed for index.json: {proc.stderr}"
         )
+
+
+def test_local_plugins_registered_in_every_marketplace() -> None:
+    """Verify each plugin under plugins/ is listed in all marketplace manifests.
+
+    The repo ships two marketplace manifests: `.claude-plugin/marketplace.json`
+    for Claude Code and `.agents/plugins/marketplace.json` for Codex. Both
+    install exclusively from a marketplace, so an unregistered plugin is not
+    merely undiscoverable there, it is uninstallable. google-secops was missing
+    from both until this was caught by a clean-room container test.
+    """
+    manifests = [
+        REPO_ROOT / ".claude-plugin" / "marketplace.json",
+        REPO_ROOT / ".agents" / "plugins" / "marketplace.json",
+    ]
+    # A directory only needs registering if it is actually an installable
+    # plugin. Some directories under plugins/cloud are documentation stubs with
+    # no manifest, and a marketplace entry for one would not resolve.
+    local_plugins = sorted(
+        p.name
+        for p in (REPO_ROOT / "plugins" / "cloud").iterdir()
+        if p.is_dir()
+        and (
+            (p / "plugin.json").is_file()
+            or (p / ".claude-plugin" / "plugin.json").is_file()
+        )
+    )
+    assert local_plugins, "no installable plugins found under plugins/cloud/"
+    assert "google-secops" in local_plugins
+
+    missing: list[str] = []
+    for manifest in manifests:
+        assert manifest.is_file(), f"Missing marketplace manifest {manifest}"
+        registered = {
+            entry.get("name")
+            for entry in json.loads(manifest.read_text(encoding="utf-8"))["plugins"]
+        }
+        for plugin in local_plugins:
+            if plugin not in registered:
+                missing.append(f"{plugin} not in {manifest.relative_to(REPO_ROOT)}")
+
+    assert not missing, "Unregistered plugins:\n  " + "\n  ".join(missing)

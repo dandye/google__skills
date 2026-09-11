@@ -92,15 +92,21 @@ def test_secops_harness_descriptors() -> None:
     assert {"PROJECT_ID", "CUSTOMER_ID", "REGION", "SERVER_URL"}.issubset(setting_names)
     assert "google-security-operations" in gemini_data.get("mcpServers", {})
 
-    # 2. Claude plugin & mcp_config.json
+    # 2. Claude plugin descriptor and the .mcp.json it actually reads
     claude_path = SECOPS_DIR / ".claude-plugin" / "plugin.json"
     assert claude_path.exists(), f"Missing {claude_path}"
     with open(claude_path, encoding="utf-8") as f:
         claude_data = json.load(f)
     assert claude_data.get("name") == "google-secops"
     assert claude_data.get("version") == "1.1.0"
-    assert claude_data.get("mcpServers") == "./mcp_config.json"
 
+    dot_mcp_path = SECOPS_DIR / ".mcp.json"
+    assert dot_mcp_path.exists(), f"Missing {dot_mcp_path}"
+    with open(dot_mcp_path, encoding="utf-8") as f:
+        dot_mcp_data = json.load(f)
+    assert "google-security-operations" in dot_mcp_data.get("mcpServers", {})
+
+    # mcp_config.json is still consumed by Antigravity, so it must stay valid.
     mcp_config_path = SECOPS_DIR / "mcp_config.json"
     assert mcp_config_path.exists(), f"Missing {mcp_config_path}"
     with open(mcp_config_path, encoding="utf-8") as f:

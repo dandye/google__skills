@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "google-security-operations": {
+      "type": "http",
+      "url": "https://chronicle.us.rep.googleapis.com/mcp"
+    }
+  }
+}
