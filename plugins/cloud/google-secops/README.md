@@ -1,6 +1,6 @@
 # Google SecOps Plugin
 
-Agent plugin providing Security Operations capabilities for Google Security Operations (Chronicle SIEM and SOAR), packaged under the Agent Plugins 1.0.0 specification.
+Agent plugin providing Security Operations capabilities for Google Security Operations (Chronicle SIEM and SOAR).
 
 This plugin packages domain-specific agent skills, environment configuration rules, and remote Model Context Protocol (MCP) server definitions connecting to Google SecOps.
 
@@ -54,23 +54,25 @@ export REGION="us" # or your Chronicle region (e.g. europe-west1)
 export SERVER_URL="https://chronicle.us.rep.googleapis.com/mcp"
 ```
 
-### 5. Codex: add the ADC header helper manually
+### 5. Codex: automatic ADC headers
 
-Claude Code, Gemini CLI, and agy authenticate with ADC directly from this
-plugin. Codex cannot: when a plugin ships an Agent Plugins `plugin.json`, Codex
-parses `mcp.json` against the Agent Plugins MCP schema, which allows only
-`type`, `url`, and `headers` per server and strips client-owned headers such as
-`Authorization`. There is no in-plugin way to express a credential helper.
+Codex loads the native `.codex-plugin/plugin.json` manifest, which bundles
+`http_headers_helper` for the Streamable HTTP server. The helper runs
+`gcloud auth application-default print-access-token` and returns an
+`Authorization: Bearer …` header plus `x-goog-user-project`. It uses
+`PROJECT_ID` when set, otherwise the active gcloud project. Ensure `gcloud`
+is on the PATH inherited by Codex. No manual `mcp_servers.secops` entry is needed.
 
-Until Codex supports one, add the server to `~/.codex/config.toml` yourself:
+The root `plugin.json` intentionally omits the Agent Plugins `$schema` marker.
+With that marker, Codex prioritizes the portable manifest and reads `mcp.json`,
+whose schema cannot express this helper. Keep authentication in the native
+Codex manifest; adding the marker back bypasses it. Other clients retain their
+existing manifests and ADC configuration.
 
-```toml
-[mcp_servers.secops]
-url = "https://chronicle.us.rep.googleapis.com/mcp"
-http_headers_helper = "TOKEN=$(gcloud auth application-default print-access-token 2>/dev/null); if [ -z \"$TOKEN\" ]; then echo 'no ADC token; run: gcloud auth application-default login' >&2; exit 1; fi; printf '{\"Authorization\": \"Bearer %s\", \"x-goog-user-project\": \"%s\"}' \"$TOKEN\" \"${PROJECT_ID:-$(gcloud config get-value project)}\""
-```
+Codex caches helper headers per connection and can refresh them after an
+authentication failure. See the [Codex MCP documentation](https://developers.openai.com/codex/mcp).
 
-### 5. Preflight Verification
+### 6. Preflight Verification
 
 Agent runtimes register MCP tools once, at startup. If the connection fails, the session
 simply has no SecOps tools; there is usually no error and no prompt. Ensure all environment
@@ -88,6 +90,7 @@ After launching, confirm the server actually connected. The command differs per 
 
 | Harness | Verify connection |
 | :--- | :--- |
+| Codex | Start a fresh session, then use `/mcp` and invoke a read-only SecOps tool |
 | Claude Code | `claude mcp list` |
 | Gemini CLI | `gemini mcp list` |
 | Antigravity (`agy`) | `ls -1 ~/.gemini/jetski/mcp/` |
@@ -99,7 +102,7 @@ a configuration listing: most harnesses show what is *configured*, not what is *
 
 ## Testing Plugin Installation
 
-The plugin adheres to cross-harness packaging standards and can be installed and tested across different agent runtimes.
+The plugin ships client-specific manifests and can be installed and tested across different agent runtimes.
 
 ### Antigravity CLI (`agy`)
 
@@ -154,6 +157,26 @@ codex plugin marketplace add google/skills
 codex plugin add google-secops@google-plugins
 ```
 
+To test changes from this checkout, run these commands from the repository root:
+
+```bash
+codex plugin marketplace add .
+codex plugin add google-secops@google-plugins
+bun test plugins/cloud/google-secops/tests/codex-auth.test.ts
+```
+
+The local marketplace replaces the configured `google-plugins` source. To switch
+back after publishing, run `codex plugin marketplace add google/skills` again.
+Restart Codex after reinstalling, open `/mcp`, and confirm the `secops` server
+connects. A successful install or MCP handshake alone does not prove access:
+invoke a read-only SecOps tool against your configured customer as well.
+
+If startup reports that the HTTP headers helper exited, check ADC with
+`gcloud auth application-default print-access-token > /dev/null`. A
+reauthentication error requires `gcloud auth application-default login` before
+retrying. Remove a manually configured duplicate `mcp_servers.secops` entry if
+you previously used the workaround, so the test exercises the plugin server.
+
 ---
 
 ## Verification and Smoke Testing
@@ -180,14 +203,14 @@ Expected behavior:
 ```
 plugins/cloud/google-secops/
 ├── README.md                      # Plugin installation and usage documentation
-├── plugin.json                    # Agent Plugins 1.0.0 manifest (read by Codex and agy)
+├── plugin.json                    # Plugin metadata for agy
 ├── gemini-extension.json          # Gemini CLI extension descriptor and MCP settings
-├── mcp.json                       # MCP server definition (read by Codex)
+├── mcp.json                       # Portable MCP server definition
 ├── mcp_config.json                # MCP server definition (read by agy / Jetski)
 ├── .claude-plugin/
 │   └── plugin.json                # Claude plugin manifest, incl. its MCP server and ADC helper
 ├── .codex-plugin/
-│   └── plugin.json                # Codex plugin manifest (metadata only)
+│   └── plugin.json                # Native Codex manifest with ADC header helper
 ├── rules/
 │   └── secops-environment.md      # Environment parameters and ADC auth instructions
 └── skills/                        # Packaged agent skills (with YAML frontmatter)
