@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "google-security-operations": {
+    "secops": {
       "serverUrl": "https://chronicle.us.rep.googleapis.com/mcp",
       "authProviderType": "google_credentials"
     }
