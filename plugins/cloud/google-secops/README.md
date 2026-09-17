@@ -164,10 +164,10 @@ Expected behavior:
 ```
 plugins/cloud/google-secops/
 ├── README.md                      # Plugin installation and usage documentation
-├── plugin.json                    # Agent Plugins 1.0.0 specification manifest
+├── plugin.json                    # Agent Plugins 1.0.0 manifest (read by Codex and agy)
 ├── gemini-extension.json          # Gemini CLI extension descriptor and MCP settings
-├── mcp.json                       # MCP server definition (streamable-http)
-├── mcp_config.json                # Claude Code MCP configuration
+├── .mcp.json                      # MCP server definition (read by Claude Code and Codex)
+├── mcp_config.json                # MCP server definition (read by agy / Jetski)
 ├── .claude-plugin/
 │   └── plugin.json                # Claude plugin manifest
 ├── .codex-plugin/
