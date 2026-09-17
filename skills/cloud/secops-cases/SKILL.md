@@ -53,7 +53,7 @@ A missing tool is a configuration failure to report, never an obstacle to route 
 When case tools are registered, apply this selection order:
 
 1. **Remote MCP Tools (Primary)**: Prioritize remote tools exposed by the
-   `google-security-operations` MCP server.
+   `secops` MCP server.
 2. **Local MCP Tools (Alternate)**: Use local Python MCP server tools only when they are
    themselves registered in the session and the remote equivalent is absent from the tool
    list. An unregistered local server is not a fallback; it is the stop condition above.

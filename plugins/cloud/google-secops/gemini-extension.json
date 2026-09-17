@@ -38,7 +38,7 @@
     }
   ],
   "mcpServers": {
-    "google-security-operations": {
+    "secops": {
       "serverUrl": "${SERVER_URL}",
       "authProviderType": "google_credentials",
       "oauth": {
