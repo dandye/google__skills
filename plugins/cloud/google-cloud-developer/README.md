@@ -50,12 +50,12 @@ codex plugin add google-cloud-developer@google-plugins
 -   **[google-cloud-recipe-auth](./skills/google-cloud-recipe-auth)**:
     Authentication workflows, credential selection, and service identity best
     practices.
--   **[google-cloud-recipe-gcp-juggling](./skills/google-cloud-recipe-gcp-juggling)**:
+-   **[google-cloud-recipe-onboarding](./skills/google-cloud-recipe-onboarding)**:
+    First-project onboarding, account setup, and billing configuration.
+-   **[google-cloud-recipe-workspace-isolation](./skills/google-cloud-recipe-workspace-isolation)**:
     Per-directory isolation of `gcloud` configurations, Application Default
     Credentials (ADC), service account impersonation, and Python virtual
     environments using `direnv`.
--   **[google-cloud-recipe-onboarding](./skills/google-cloud-recipe-onboarding)**:
-    First-project onboarding, account setup, and billing configuration.
 -   **[finding-google-skills](./skills/finding-google-skills)**: Discovery and
     on-demand installation of specialized skills from the Google Agent Skills
     repo.

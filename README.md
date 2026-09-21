@@ -20,8 +20,8 @@ repo to install.
 - **Getting started with Google Cloud**
   - [**Authenticating to Google Cloud**](./skills/cloud/google-cloud-recipe-auth)
   - [**Google Cloud Recipe: Foundation Builder**](./skills/cloud/google-cloud-recipe-foundation-builder)
-  - [**Google Cloud Recipe: Juggling Multiple GCP Accounts and Projects**](./skills/cloud/google-cloud-recipe-gcp-juggling)
   - [**Onboarding to Google Cloud**](./skills/cloud/google-cloud-recipe-onboarding)
+  - [**Per-Directory Workspace and Credential Isolation**](./skills/cloud/google-cloud-recipe-workspace-isolation)
 - **Multi-product solution skills**
   - [**Google Cloud solution-architecture workflow**](./skills/cloud/google-cloud-solution-architecture)
   - [**Agent Gateway multi-agent security**](./skills/cloud/google-cloud-solution-multi-agent-security)

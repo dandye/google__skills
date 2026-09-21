@@ -1,5 +1,5 @@
 ---
-name: google-cloud-recipe-gcp-juggling
+name: google-cloud-recipe-workspace-isolation
 metadata:
   version: "1.0.0"
   category: GettingStarted
@@ -7,15 +7,15 @@ description: >-
   Isolates Google Cloud CLI (gcloud) configurations, Application Default
   Credentials (ADC), service account impersonation, and Python virtual
   environments per directory using direnv and CLOUDSDK_CONFIG. Use when
-  juggling multiple Google Cloud accounts, organizations, or projects on a
-  single workstation, preventing global ADC overwrites during gcloud auth login
-  --update-adc, or sandboxing multi-repo and git-worktree environments.
-  Don't use for single-project workstations sharing one global identity, or for
-  production compute workloads where credentials come from the metadata server
-  (Compute Engine, Cloud Run, GKE Workload Identity).
+  switching or juggling multiple Google Cloud accounts, organizations, or
+  projects on a single workstation, preventing global ADC overwrites during
+  gcloud auth login --update-adc, or sandboxing multi-repo and git-worktree
+  environments. Don't use for single-project workstations sharing one global
+  identity, or for production compute workloads where credentials come from
+  the metadata server (Compute Engine, Cloud Run, GKE Workload Identity).
 ---
 
-# Google Cloud Recipe: Juggling Multiple GCP Accounts and Projects with direnv
+# Google Cloud Recipe: Per-Directory Workspace and Credential Isolation with direnv
 
 This skill provides a deterministic workflow for isolating [Google Cloud CLI (`gcloud`)](https://docs.cloud.google.com/sdk/docs) configurations, [Application Default Credentials (ADC)](https://docs.cloud.google.com/docs/authentication/application-default-credentials), service account impersonation settings, and Python virtual environments (`uv` / `.venv`) on a per-directory basis using `direnv` and `CLOUDSDK_CONFIG="${PWD}/.gcloud"`.
 
