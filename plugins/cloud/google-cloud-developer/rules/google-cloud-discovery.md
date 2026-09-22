@@ -19,6 +19,7 @@ catalog skill and fetch it. Catalog names are predictable:
 - `google-cloud-waf-*` - Well-Architected Framework pillars
 - `genkit-*`, `gemini-*` - Genkit SDKs, Gemini APIs
 - `cloud-logging-*`, `cloud-monitoring-*` - observability
+- `secops-*`, `detection-engineering-*` - Google Security Operations / SecOps (SIEM/SOAR alert triage, investigation, threat hunting, cases, YARA-L 2.0 detection engineering)
 - `<product>-basics` - BigQuery, Bigtable, Spanner, AlloyDB, Cloud SQL, Cloud Run, Firebase, Storage
 
 If `finding-google-skills` is available to you, use it to search the catalog
