@@ -1,6 +1,7 @@
 ---
 name: gke-alert-configuration
 metadata:
+  version: "1.0.0"
   category: CloudInfrastructure
   canonical_source: https://github.com/google/skills/tree/main/skills/cloud/gke-alert-configuration
 description: >-

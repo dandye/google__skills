@@ -1,6 +1,7 @@
 ---
 name: google-cloud-recipe-onboarding
 metadata:
+  version: "1.0.0"
   category: GettingStarted
 description: >-
   Guides a developer's first steps on Google Cloud, covering account creation,

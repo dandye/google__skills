@@ -9,7 +9,7 @@ description: >-
   the Data Manager API. Don't use for uploading audience members (use the
   data-manager-api-audience-ingestion skill).
 metadata:
-  version: 1.1
+  version: "1.1.0"
   category: GoogleAds
 ---
 # Data Manager API Event Ingestion

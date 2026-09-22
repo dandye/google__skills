@@ -8,7 +8,7 @@ description: >-
   audience or event ingestion logic (use the data-manager-api-audience-ingestion
   or data-manager-api-event-ingestion skills instead).
 metadata:
-  version: 1.0
+  version: "1.0.0"
   category: GoogleAds
 ---
 # Data Manager API Setup

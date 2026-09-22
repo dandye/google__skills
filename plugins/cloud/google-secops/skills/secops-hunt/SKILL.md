@@ -3,7 +3,7 @@ name: secops-hunt
 metadata:
   category: Security
   author: Google LLC
-  version: 1.1.0
+  version: "1.1.0"
   status: published
 description: >-
   Expert guidance for proactive threat hunting in Google SecOps. Use when

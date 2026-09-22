@@ -1,6 +1,7 @@
 ---
 name: google-cloud-solution-agentic-analytics-spark-knowledge-catalog
 metadata:
+  version: "1.0.0"
   category: MultiProductSolutions
 description: >-
   Discovers requirements and designs an end-to-end governed agentic analytics

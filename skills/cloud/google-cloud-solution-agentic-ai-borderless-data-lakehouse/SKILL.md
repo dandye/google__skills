@@ -1,6 +1,7 @@
 ---
 name: google-cloud-solution-agentic-ai-borderless-data-lakehouse
 metadata:
+  version: "1.0.0"
   category: MultiProductSolutions
 description: >-
   Discovers requirements and designs a borderless open data lakehouse using

@@ -1,6 +1,7 @@
 ---
 name: google-cloud-solution-architecture
 metadata:
+  version: "1.0.1"
   category: MultiProductSolutions
 description: >-
   Interactively discovers requirements and designs holistic, multi-product

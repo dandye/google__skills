@@ -1,6 +1,7 @@
 ---
 name: cloud-run-alert-configuration
 metadata:
+  version: "1.0.0"
   category: Serverless
 description: >-
   Configures best-practice, high-signal alerting policies for Google Cloud Run

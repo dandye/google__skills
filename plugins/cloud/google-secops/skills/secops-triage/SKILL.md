@@ -3,7 +3,7 @@ name: secops-triage
 metadata:
   category: Security
   author: Google LLC
-  version: 1.1.0
+  version: "1.1.0"
   status: published
 description: >-
   Expert guidance for security alert triage in Google SecOps. Use when

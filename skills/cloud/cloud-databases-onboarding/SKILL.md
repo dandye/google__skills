@@ -1,6 +1,7 @@
 ---
 name: cloud-databases-onboarding
 metadata:
+  version: "1.0.0"
   category: Databases
 description: >-
   Guides users through discovering their database requirements, recommends a
