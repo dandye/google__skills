@@ -21,6 +21,7 @@ repo to install.
   - [**Authenticating to Google Cloud**](./skills/cloud/google-cloud-recipe-auth)
   - [**Google Cloud Recipe: Foundation Builder**](./skills/cloud/google-cloud-recipe-foundation-builder)
   - [**Onboarding to Google Cloud**](./skills/cloud/google-cloud-recipe-onboarding)
+  - [**Per-Directory Workspace and Credential Isolation**](./skills/cloud/google-cloud-recipe-workspace-isolation)
 - **Multi-product solution skills**
   - [**Google Cloud solution-architecture workflow**](./skills/cloud/google-cloud-solution-architecture)
   - [**Agent Gateway multi-agent security**](./skills/cloud/google-cloud-solution-multi-agent-security)
