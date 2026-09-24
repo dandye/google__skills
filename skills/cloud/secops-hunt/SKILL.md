@@ -115,31 +115,31 @@ Retroactive analysis determines whether newly disclosed Indicators of Compromise
 
    **IP Indicators**:
    ```udm
-   principal.ip = "IOC_VALUE"
-   OR target.ip = "IOC_VALUE"
-   OR src.ip = "IOC_VALUE"
-   OR intermediary.ip = "IOC_VALUE"
+   principal.ip = "<IP_ADDRESS>"
+   OR target.ip = "<IP_ADDRESS>"
+   OR src.ip = "<IP_ADDRESS>"
+   OR intermediary.ip = "<IP_ADDRESS>"
    ```
 
    **Domain / DNS Indicators**:
    ```udm
-   principal.hostname = "IOC_VALUE"
-   OR target.hostname = "IOC_VALUE"
-   OR network.dns.questions.name = "IOC_VALUE"
+   principal.hostname = "<DOMAIN_NAME>"
+   OR target.hostname = "<DOMAIN_NAME>"
+   OR network.dns.questions.name = "<DOMAIN_NAME>"
    ```
 
    **File Hash Indicators**:
    ```udm
-   target.file.sha256 = "IOC_VALUE"
-   OR target.process.file.sha256 = "IOC_VALUE"
-   OR principal.process.file.sha256 = "IOC_VALUE"
-   OR target.file.md5 = "IOC_VALUE"
-   OR target.file.sha1 = "IOC_VALUE"
+   target.file.sha256 = "<SHA256_HASH>"
+   OR target.process.file.sha256 = "<SHA256_HASH>"
+   OR principal.process.file.sha256 = "<SHA256_HASH>"
+   OR target.file.md5 = "<MD5_HASH>"
+   OR target.file.sha1 = "<SHA1_HASH>"
    ```
 
    **URL Indicators**:
    ```udm
-   target.url = "IOC_VALUE"
+   target.url = "<URL>"
    ```
 
 4. **Timeline Reconstruction**:
