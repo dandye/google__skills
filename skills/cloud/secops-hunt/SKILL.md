@@ -3,7 +3,7 @@ name: secops-hunt
 metadata:
   category: Security
   author: Google LLC
-  version: "1.1.0"
+  version: "1.1.1"
   status: published
 description: >-
   Expert guidance for proactive threat hunting in Google SecOps. Use when
@@ -117,7 +117,8 @@ Retroactive analysis determines whether newly disclosed Indicators of Compromise
    ```udm
    principal.ip = "IOC_VALUE"
    OR target.ip = "IOC_VALUE"
-   OR network.ip = "IOC_VALUE"
+   OR src.ip = "IOC_VALUE"
+   OR intermediary.ip = "IOC_VALUE"
    ```
 
    **Domain / DNS Indicators**:
@@ -130,6 +131,8 @@ Retroactive analysis determines whether newly disclosed Indicators of Compromise
    **File Hash Indicators**:
    ```udm
    target.file.sha256 = "IOC_VALUE"
+   OR target.process.file.sha256 = "IOC_VALUE"
+   OR principal.process.file.sha256 = "IOC_VALUE"
    OR target.file.md5 = "IOC_VALUE"
    OR target.file.sha1 = "IOC_VALUE"
    ```
