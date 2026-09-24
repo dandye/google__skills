@@ -114,11 +114,16 @@ Retroactive analysis determines whether newly disclosed Indicators of Compromise
    - Construct retroactive UDM searches across 30-90 day historical windows:
 
    **IP Indicators**:
+   Explicit UDM fields:
    ```udm
    principal.ip = "<IP_ADDRESS>"
    OR target.ip = "<IP_ADDRESS>"
    OR src.ip = "<IP_ADDRESS>"
    OR intermediary.ip = "<IP_ADDRESS>"
+   ```
+   Grouped field search alias (searches across all IP fields simultaneously):
+   ```udm
+   ip = "<IP_ADDRESS>"
    ```
 
    **Domain / DNS Indicators**:
@@ -129,6 +134,7 @@ Retroactive analysis determines whether newly disclosed Indicators of Compromise
    ```
 
    **File Hash Indicators**:
+   Explicit UDM fields:
    ```udm
    target.file.sha256 = "<SHA256_HASH>"
    OR target.process.file.sha256 = "<SHA256_HASH>"
@@ -136,11 +142,18 @@ Retroactive analysis determines whether newly disclosed Indicators of Compromise
    OR target.file.md5 = "<MD5_HASH>"
    OR target.file.sha1 = "<SHA1_HASH>"
    ```
+   Grouped field search alias (matches across all MD5, SHA-1, and SHA-256 process and file targets):
+   ```udm
+   hash = "<FILE_HASH>"
+   ```
 
    **URL Indicators**:
    ```udm
    target.url = "<URL>"
    ```
+
+   > [!NOTE]
+   > Grouped field aliases (`ip`, `hash`, `domain`, `hostname`) are supported in interactive UDM searches (`udm_search`) to query across multiple noun roles simultaneously. They are not supported in YARA-L 2.0 detection rules, which require explicit UDM field paths.
 
 4. **Timeline Reconstruction**:
    - For confirmed hits, identify:
