@@ -3,7 +3,7 @@ name: secops-hunt
 metadata:
   category: Security
   author: Google LLC
-  version: "1.1.0"
+  version: "1.1.1"
   status: published
 description: >-
   Expert guidance for proactive threat hunting in Google SecOps. Use when
@@ -114,30 +114,46 @@ Retroactive analysis determines whether newly disclosed Indicators of Compromise
    - Construct retroactive UDM searches across 30-90 day historical windows:
 
    **IP Indicators**:
+   Explicit UDM fields:
    ```udm
-   principal.ip = "IOC_VALUE"
-   OR target.ip = "IOC_VALUE"
-   OR network.ip = "IOC_VALUE"
+   principal.ip = "<IP_ADDRESS>"
+   OR target.ip = "<IP_ADDRESS>"
+   OR src.ip = "<IP_ADDRESS>"
+   OR intermediary.ip = "<IP_ADDRESS>"
+   ```
+   Grouped field search alias (searches across all IP fields simultaneously):
+   ```udm
+   ip = "<IP_ADDRESS>"
    ```
 
    **Domain / DNS Indicators**:
    ```udm
-   principal.hostname = "IOC_VALUE"
-   OR target.hostname = "IOC_VALUE"
-   OR network.dns.questions.name = "IOC_VALUE"
+   principal.hostname = "<DOMAIN_NAME>"
+   OR target.hostname = "<DOMAIN_NAME>"
+   OR network.dns.questions.name = "<DOMAIN_NAME>"
    ```
 
    **File Hash Indicators**:
+   Explicit UDM fields:
    ```udm
-   target.file.sha256 = "IOC_VALUE"
-   OR target.file.md5 = "IOC_VALUE"
-   OR target.file.sha1 = "IOC_VALUE"
+   target.file.sha256 = "<SHA256_HASH>"
+   OR target.process.file.sha256 = "<SHA256_HASH>"
+   OR principal.process.file.sha256 = "<SHA256_HASH>"
+   OR target.file.md5 = "<MD5_HASH>"
+   OR target.file.sha1 = "<SHA1_HASH>"
+   ```
+   Grouped field search alias (matches across all MD5, SHA-1, and SHA-256 process and file targets):
+   ```udm
+   hash = "<FILE_HASH>"
    ```
 
    **URL Indicators**:
    ```udm
-   target.url = "IOC_VALUE"
+   target.url = "<URL>"
    ```
+
+   > [!NOTE]
+   > Grouped field aliases (`ip`, `hash`, `domain`, `hostname`) are supported in interactive UDM searches (`udm_search`) to query across multiple noun roles simultaneously. They are not supported in YARA-L 2.0 detection rules, which require explicit UDM field paths.
 
 4. **Timeline Reconstruction**:
    - For confirmed hits, identify:
