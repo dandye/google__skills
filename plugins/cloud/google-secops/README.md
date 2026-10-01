@@ -54,22 +54,6 @@ export REGION="us" # or your Chronicle region (e.g. europe-west1)
 export SERVER_URL="https://chronicle.us.rep.googleapis.com/mcp"
 ```
 
-### 5. Codex: add the ADC header helper manually
-
-Claude Code, Gemini CLI, and agy authenticate with ADC directly from this
-plugin. Codex cannot: when a plugin ships an Agent Plugins `plugin.json`, Codex
-parses `mcp.json` against the Agent Plugins MCP schema, which allows only
-`type`, `url`, and `headers` per server and strips client-owned headers such as
-`Authorization`. There is no in-plugin way to express a credential helper.
-
-Until Codex supports one, add the server to `~/.codex/config.toml` yourself:
-
-```toml
-[mcp_servers.secops]
-url = "https://chronicle.us.rep.googleapis.com/mcp"
-http_headers_helper = "TOKEN=$(gcloud auth application-default print-access-token 2>/dev/null); if [ -z \"$TOKEN\" ]; then echo 'no ADC token; run: gcloud auth application-default login' >&2; exit 1; fi; printf '{\"Authorization\": \"Bearer %s\", \"x-goog-user-project\": \"%s\"}' \"$TOKEN\" \"${PROJECT_ID:-$(gcloud config get-value project)}\""
-```
-
 ### 5. Preflight Verification
 
 Agent runtimes register MCP tools once, at startup. If the connection fails, the session
@@ -180,14 +164,14 @@ Expected behavior:
 ```
 plugins/cloud/google-secops/
 ├── README.md                      # Plugin installation and usage documentation
-├── plugin.json                    # Agent Plugins 1.0.0 manifest (read by Codex and agy)
+├── plugin.json                    # Plugin manifest (read by agy / Jetski)
 ├── gemini-extension.json          # Gemini CLI extension descriptor and MCP settings
-├── mcp.json                       # MCP server definition (read by Codex)
+├── .mcp.json                      # MCP server definition (read by Claude Code and Codex)
 ├── mcp_config.json                # MCP server definition (read by agy / Jetski)
 ├── .claude-plugin/
-│   └── plugin.json                # Claude plugin manifest, incl. its MCP server and ADC helper
+│   └── plugin.json                # Claude plugin manifest
 ├── .codex-plugin/
-│   └── plugin.json                # Codex plugin manifest (metadata only)
+│   └── plugin.json                # Codex plugin manifest
 ├── rules/
 │   └── secops-environment.md      # Environment parameters and ADC auth instructions
 └── skills/                        # Packaged agent skills (with YAML frontmatter)
