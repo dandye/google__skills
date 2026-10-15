@@ -73,7 +73,7 @@ Follow the standardized end-to-end triage lifecycle:
 ## 1. Step-by-Step Alert Investigation Workflow
 
 ### Inputs
-- `${ALERT_ID}` or `${CASE_ID}`
+- Alert identifier (`security_result.rule_id` / `alert_id`) or SOAR Case identifier (`case_id`)
 
 ### Investigation Steps
 
@@ -85,14 +85,14 @@ Follow the standardized end-to-end triage lifecycle:
      - Detection title and triggering YARA-L rule name
      - Rule logic, MITRE ATT&CK technique tags, and original rule severity
      - Triggering timestamp and event IDs
-     - Key Entities (`${KEY_ENTITIES}`): Usernames (`principal.user.userid`), Hostnames (`principal.hostname`, `target.hostname`), IP Addresses (`principal.ip`, `target.ip`), Domains (`network.dns.questions.name`), and File Hashes (`target.process.file.sha256`).
+     - Key Entities: Usernames (`principal.user.userid`, `target.user.userid`), Hostnames (`principal.hostname`, `target.hostname`), IP Addresses (`principal.ip`, `target.ip`), Domains (`network.dns.questions.name`), and File Hashes (`target.process.file.sha256`).
 
 2. **Check for Duplicates & Prior Cases**:
    - Query existing cases matching the detection or key entities:
      - Remote & Local: `list_cases`
-     - Filter: Check for open or recently closed cases involving `${KEY_ENTITIES}` or matching `displayName`.
+     - Filter: Check for open or recently closed cases involving the extracted key entities or matching `displayName`.
    - **Handling Duplicates**:
-     - If an active investigation for the same alert or incident already exists (`${SIMILAR_CASE_IDS}`):
+     - If an active investigation for the same alert or incident already exists (matching prior `case_id`):
        - Add comment referencing primary case: `create_case_comment` (Remote) or `post_case_comment` (Local).
        - Close redundant ticket using `execute_bulk_close_case` (Reason="DUPLICATE").
        - STOP triage for this duplicate.
