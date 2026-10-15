@@ -84,36 +84,27 @@ Every runbook covering authentication, remote execution (`PsExec`, `WMI`, `WinRM
   - EDR process tree (`PROCESS_LAUNCH` parent-child chain) **plus** file hash reputation, unsigned binary path (`C:\Users\Public\`, `%TEMP%`), or outbound C2 connection.
 - A single uncorroborated low-confidence signal must never trigger host isolation or account disablement on critical infrastructure.
 
-### Rule 9: Use the Canonical 5-Section Operational Skeleton
-Structure every agentic SOC runbook with these five H2 sections in order:
+### Rule 9: Use the Canonical Operational Skeleton (Dual-Track: Triage vs. Threat Hunting)
+Agentic SOC runbooks must follow the operational track matching their epistemic direction:
 
-```markdown
-# <Runbook Title>
+#### Track A: Reactive Alert & Case Triage (Entity-First / Narrow-to-Broad)
+Starts from a fired alert (`<case_id>`, `<asset_identifier>`, `<ioc_value>`):
+- **Stage A (Asset Identity, CMDB Context, & SOAR Case Correlation)**: `lookup_entity` on `<asset_identifier>` (role, criticality, `CHG-...` windows) + `list_cases` for duplicates.
+- **Stage B (Network Routing & Scope Verification)**: `get_ip_address_report` / `get_domain_report` (`PUBLIC`, `PRIVATE`, RFC-5737).
+- **Stage C (Threat Intelligence Reputation)**: `get_file_report`, `get_ip_address_report`, `get_domain_report`.
+- **Stage D (Behavioral Corroboration, Verdict, & Action)**: `search_security_events` -> map to `MALICIOUS`, `SUSPICIOUS`, `INCONCLUSIVE`, or `BENIGN`.
 
-## 1. Alert & Entity Extraction
-Extract `principal.hostname`, `target.hostname`, `principal.ip`, `target.ip`, `target.user.userid`, `target.process.command_line`, and `target.process.file.sha256` from the alert payload.
+#### Track B: Proactive Threat Hunting & CTI Collection Sweeps (Hypothesis-First / Broad-to-Narrow)
+Starts from a GTI Collection/Report ID (such as `"Unwrapping Ursnifs Gifts"`, `alienvault_63bbee81b55c8ba00724605a`, or `report--22-00022539`), C2 domain seed (`superstarts.top`), or MITRE ATT&CK technique (`<mitre_technique_ids>`) with **no pre-identified host**:
+- **Stage A (CTI Collection & Second-Hop Indicator Expansion)**: Query `get_collection_report` and `get_entities_related_to_a_collection` (`domains`, `files`, `ip_addresses`, `attack_techniques`). For C2 domains, pivot via `get_entities_related_to_a_domain` (`relationship_name="communicating_files"`) to discover second-hop payload hashes (e.g., `itsIt.db` `8e570e32...`) that load on endpoints even when direct network logs are absent.
+- **Stage B (Multi-Horizon SIEM Sweep `72h` -> `168h` Widening)**: Sweep `get_ioc_matches` and `search_security_events` at `hours_back=72`. If `72` hours returns zero events in a sparse or replayed tenant, automatically widen to `hours_back=168` (`7` days) and pivot to `PROCESS_MODULE_LOAD` and `PROCESS_LAUNCH` events before concluding clean.
+- **Stage C (LOLBin / Benign-Collateral Guard, Patient-Zero Lineage, & Case Correlation)**: Call `get_file_report` on every matched hash to separate malicious payloads from legitimate signed Windows LOLBins (such as `rundll32.exe` hash `7d99c80a...` or `wscript.exe`) or benign collateral files (`index.html`) — **never** `block_indicator` on signed OS binaries. Reconstruct the Patient-Zero process chain (`wscript.exe` executing obfuscated `.js` with reversed strings `revreSretsigeRllD` -> renamed `rundll32.exe` from `\Device\CdRom1\` loading Ursnif DLL) on `<matched_hostname>` (`malwaretest-win`) and correlate existing/unalerted SOAR cases (`list_cases`, e.g., Critical Case `2396` with zero alerts indicating a detection gap).
+- **Stage D (4-Way Hunt Verdict & Detection-Gap Handoff)**: Map findings to `MALICIOUS` (`isolate_host` on `<matched_hostname>`, `block_indicator` on verified C2/payloads only, `update_case_comment` with detection gap), `SUSPICIOUS` (escalate outlier + propose YARA-L 2.0 `YL2` rule; no isolation), `INCONCLUSIVE` (`503` fallback to local telemetry), or `BENIGN` (clean sweep across `72h` and `168h`).
 
-## 2. SIEM / EDR / TI Corroboration
-1. Query SIEM UDM events (`udm_search`) around the alert timestamp (+/- 2 hours) for the extracted entities.
-2. Enrich external IPs, domains, and SHA-256 hashes via Threat Intelligence (`get_ioc_match`) and check entity criticality (`summarize_entity`).
-3. Decode any Base64 command lines and inspect parent-child process trees and outbound network connections.
-
-## 3. Benign Admin vs. Threat Actor Verification
-Cross-reference activity against approved change tickets, known administrative jump hosts, and baseline enterprise prevalence. If verified maintenance with benign command arguments, do not isolate hosts or disable accounts.
-
-## 4. Disposition & Containment Matrix
-- **`escalate_incident`**: Confirmed compromise corroborated across >=2 sources -> `CONTAIN_HOST`, `DISABLE_ACCOUNT`, escalate to Tier-2.
-- **`contain_and_patch`**: Active service exploitation -> `CONTAIN_HOST`, `BLOCK_IOC`, apply emergency patch.
-- **`tune_detection`**: Verified benign admin/scanner -> `PROPOSE_RULE_TUNING`, zero destructive actions.
-- **`benign_or_inconclusive`**: Isolated anomaly with no malicious follow-on -> `CLOSE_BENIGN`, zero destructive actions.
-
-## 5. Required Triage Output
-Report `disposition`, `root_cause`, `key_entities` (exact hostnames, IPs, users, hashes from alert telemetry), `evidence_summary` citing specific tool outputs, and `recommended_actions`.
-```
-
-### Rule 10: Audit Every Runbook Against Context Hygiene Defect Rules (`RB-01`..`RB-04`)
+### Rule 10: Audit Every Runbook Against Context Hygiene Defect Rules (`RB-01`..`RB-05`)
 Before publishing or committing any runbook (in Git or Google Docs), verify all deterministic hygiene checks pass:
 - **`RB-01` (`mermaid_diagram_bloat_in_agent_runbook`)**: Zero ` ```mermaid ` or `sequenceDiagram` blocks in agent-consumed runbook text.
 - **`RB-02` (`interactive_ide_pseudotool_in_autonomous_runbook`)**: Zero references to `ask_followup_question`, `attempt_completion`, or `write_to_file`.
-- **`RB-03` (`unresolved_shell_template_variable_in_runbook`)**: Zero `${VAR_NAME}` shell template placeholders; replace with explicit UDM field names.
-- **`RB-04` (`missing_four_way_disposition_or_benign_admin_override`)**: All four disposition branches (`escalate_incident`, `contain_and_patch`, `tune_detection`, `benign_or_inconclusive`) and the Benign Admin Override are explicitly stated, and total runbook length stays within the word budget (`<= 350` words for core autonomous triage runbooks).
+- **`RB-03` (`unresolved_shell_template_variable_in_runbook`)**: Zero `${VAR_NAME}` shell template placeholders; replace with `<angle_bracket>` input slots or explicit UDM field names.
+- **`RB-04` (`missing_four_way_disposition_or_benign_admin_override`)**: All four disposition branches and the Benign Admin Override are explicitly stated, and total runbook length stays within the word budget (`<= 350` words).
+- **`RB-05` (`threat_hunt_missing_horizon_expansion_or_lolbin_guard`)**: Proactive threat hunt runbooks must include multi-horizon lookback widening (`72h` -> `168h` on zero hits), second-hop GTI `communicating_files` pivoting, and the LOLBin disambiguation guard forbidding `block_indicator` on signed OS binaries (`rundll32.exe`, `wscript.exe`).
