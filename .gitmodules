@@ -1,64 +1,64 @@
 [submodule "alloydb"]
-	path = plugins/cloud/data-agent-kit/alloydb
-	url = https://github.com/gemini-cli-extensions/alloydb
+	path = plugins/cloud/data-cloud/alloydb
+	url = https://github.com/GoogleCloudPlatform/alloydb-plugin
 	branch = 0.2.0
 [submodule "alloydb-omni"]
-	path = plugins/cloud/data-agent-kit/alloydb-omni
-	url = https://github.com/gemini-cli-extensions/alloydb-omni
-	branch = 0.2.1
-[submodule "bigquery-data-analytics"]
-	path = plugins/cloud/data-agent-kit/bigquery-data-analytics
-	url = https://github.com/gemini-cli-extensions/bigquery-data-analytics
+	path = plugins/cloud/data-cloud/alloydb-omni
+	url = https://github.com/GoogleCloudPlatform/alloydb-omni-plugin
 	branch = 0.2.2
+[submodule "bigquery-data-analytics"]
+	path = plugins/cloud/data-cloud/bigquery-data-analytics
+	url = https://github.com/GoogleCloudPlatform/bigquery-data-analytics-plugin.git
+	branch = 0.2.5
 [submodule "cloud-sql-mysql"]
-	path = plugins/cloud/data-agent-kit/cloud-sql-mysql
-	url = https://github.com/gemini-cli-extensions/cloud-sql-mysql
+	path = plugins/cloud/data-cloud/cloud-sql-mysql
+	url = https://github.com/GoogleCloudPlatform/cloud-sql-mysql-plugin
 	branch = 0.2.0
 [submodule "cloud-sql-postgresql"]
-	path = plugins/cloud/data-agent-kit/cloud-sql-postgresql
-	url = https://github.com/gemini-cli-extensions/cloud-sql-postgresql
+	path = plugins/cloud/data-cloud/cloud-sql-postgresql
+	url = https://github.com/GoogleCloudPlatform/cloud-sql-postgresql-plugin
 	branch = 0.4.0
 [submodule "cloud-sql-sqlserver"]
-	path = plugins/cloud/data-agent-kit/cloud-sql-sqlserver
-	url = https://github.com/gemini-cli-extensions/cloud-sql-sqlserver
+	path = plugins/cloud/data-cloud/cloud-sql-sqlserver
+	url = https://github.com/GoogleCloudPlatform/cloud-sql-sqlserver-plugin
 	branch = 0.2.0
-[submodule "data-agent-kit-starter-pack"]
-	path = plugins/cloud/data-agent-kit/data-agent-kit-starter-pack
-	url = https://github.com/gemini-cli-extensions/data-agent-kit-starter-pack
-	branch = 0.8.0
+[submodule "data-agent-kit-plugin"]
+	path = plugins/cloud/data-cloud/data-agent-kit-plugin
+	url = https://github.com/GoogleCloudPlatform/data-agent-kit-plugin
+	branch = 1.0.0
 [submodule "dataproc"]
-	path = plugins/cloud/data-agent-kit/dataproc
-	url = https://github.com/gemini-cli-extensions/dataproc
+	path = plugins/cloud/data-cloud/dataproc
+	url = https://github.com/GoogleCloudPlatform/dataproc-plugin.git
 	branch = 0.1.0
 [submodule "db-context-enrichment"]
-	path = plugins/cloud/data-agent-kit/db-context-enrichment
-	url = https://github.com/GoogleCloudPlatform/db-context-enrichment
+	path = plugins/cloud/data-cloud/db-context-enrichment
+	url = https://github.com/GoogleCloudPlatform/db-context-enrichment.git
 	branch = v0.7.2
 [submodule "firestore-native"]
-	path = plugins/cloud/data-agent-kit/firestore-native
-	url = https://github.com/gemini-cli-extensions/firestore-native
+	path = plugins/cloud/data-cloud/firestore-native
+	url = https://github.com/GoogleCloudPlatform/firestore-native-plugin
 	branch = 0.3.4
 [submodule "google-cloud-storage"]
-	path = plugins/cloud/data-agent-kit/google-cloud-storage
-	url = https://github.com/gemini-cli-extensions/google-cloud-storage
-	branch = 2.6.0
+	path = plugins/cloud/data-cloud/google-cloud-storage
+	url = https://github.com/GoogleCloudPlatform/google-cloud-storage-plugin
+	branch = 3.0.1
 [submodule "knowledge-catalog"]
-	path = plugins/cloud/data-agent-kit/knowledge-catalog
-	url = https://github.com/gemini-cli-extensions/knowledge-catalog
-	branch = 0.5.3
+	path = plugins/cloud/data-cloud/knowledge-catalog
+	url = https://github.com/GoogleCloudPlatform/knowledge-catalog-plugin.git
+	branch = 0.5.4
 [submodule "looker"]
-	path = plugins/cloud/data-agent-kit/looker
-	url = https://github.com/gemini-cli-extensions/looker
-	branch = 0.3.10
+	path = plugins/cloud/data-cloud/looker
+	url = https://github.com/GoogleCloudPlatform/looker-plugin
+	branch = 0.3.11
 [submodule "oracledb"]
-	path = plugins/cloud/data-agent-kit/oracledb
-	url = https://github.com/gemini-cli-extensions/oracledb
-	branch = 0.2.6
+	path = plugins/cloud/data-cloud/oracledb
+	url = https://github.com/GoogleCloudPlatform/oracledb-plugin
+	branch = 0.2.7
 [submodule "spanner"]
-	path = plugins/cloud/data-agent-kit/spanner
-	url = https://github.com/gemini-cli-extensions/spanner
-	branch = 0.3.5
+	path = plugins/cloud/data-cloud/spanner
+	url = https://github.com/GoogleCloudPlatform/spanner-plugin
+	branch = 0.3.6
 [submodule "cloud-bigtable-ecosystem"]
-	path = plugins/cloud/data-agent-kit/cloud-bigtable-ecosystem
+	path = plugins/cloud/data-cloud/cloud-bigtable-ecosystem
 	url = https://github.com/GoogleCloudPlatform/cloud-bigtable-ecosystem.git
 	branch = v0.4.0

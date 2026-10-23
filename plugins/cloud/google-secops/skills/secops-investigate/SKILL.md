@@ -3,7 +3,7 @@ name: secops-investigate
 metadata:
   category: Security
   author: Google LLC
-  version: 1.1.0
+  version: "1.1.1"
   status: published
 description: >-
   Expert guidance for deep security incident and entity investigations in Google

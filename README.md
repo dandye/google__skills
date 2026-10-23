@@ -11,16 +11,31 @@ products and technologies, including [Google Cloud](https://cloud.google.com).
 npx skills add google/skills
 ```
 
-From the `npx install` command, you can select the specific skills from this
-repo to install.
+When prompted, select specific skills or all skills, the target agents to
+configure, and the installation scope (project or global).
+
+If `npx` is not available in your environment, install
+[Node.js](https://nodejs.org/en/download), which includes `npm` and `npx`.
+
+## Updating Skills
+
+To update previously installed skills to the latest versions, run the following
+command.
+
+```bash
+npx skills update
+```
+
+This command gives you an option to also remove obsolete skills.
 
 ## Available Skills
 
 <!-- BEGIN SKILLS -->
 - **Getting started with Google Cloud**
-  - [**Authenticating to Google Cloud**](./skills/cloud/google-cloud-recipe-auth)
+  - [**Authenticating and Authorizing to Google Cloud (IAM)**](./skills/cloud/google-cloud-recipe-auth)
   - [**Google Cloud Recipe: Foundation Builder**](./skills/cloud/google-cloud-recipe-foundation-builder)
   - [**Onboarding to Google Cloud**](./skills/cloud/google-cloud-recipe-onboarding)
+  - [**Per-Directory Workspace and Credential Isolation**](./skills/cloud/google-cloud-recipe-workspace-isolation)
 - **Multi-product solution skills**
   - [**Google Cloud solution-architecture workflow**](./skills/cloud/google-cloud-solution-architecture)
   - [**Agent Gateway multi-agent security**](./skills/cloud/google-cloud-solution-multi-agent-security)
@@ -46,6 +61,8 @@ repo to install.
   - [**Agent Platform RAG Engine Management**](./skills/cloud/agent-platform-rag-engine-management)
   - [**Agent Platform Troubleshooting**](./skills/cloud/agent-platform-troubleshooting)
   - [**Agent Platform Tuning Management**](./skills/cloud/agent-platform-tuning-management)
+  - [**API Gateway Remote MCP Server (Public Preview)**](./skills/cloud/api-gateway-mcp-server)
+  - [**Apigee as an Agent Gateway Service Extension**](./skills/cloud/apigee-agent-gateway-governance)
   - [**BigQuery AI & ML**](./skills/cloud/bigquery-ai-ml)
   - [**Gemini API in Agent Platform**](./skills/cloud/gemini-api)
   - [**Gemini Enterprise Agent Platform - Managed Agents API Skill**](./skills/cloud/gemini-agents-api)
@@ -57,8 +74,18 @@ repo to install.
   - [**LiveAPI Service Skill**](./skills/cloud/gemini-live-api)
   - [**Migrating from Gemini API in AI Studio to Agent Platform**](./skills/cloud/agent-platform-migrate-from-ai-studio)
   - [**Skill Registry**](./skills/cloud/agent-platform-skill-registry)
+  - [**Troubleshoot GKE TPU multi-slice hangs with the MXLA Hang Analyzer**](./skills/cloud/gke-ai-troubleshooting-tpu-mxla-hang)
+  - [**Troubleshoot GKE TPU performance degradation with ML Diagnostics Workload Monitoring**](./skills/cloud/gke-ai-troubleshooting-tpu-performance-degradation)
 - **Infrastructure**
+  - [**Cloud Network Insights**](./skills/cloud/cloud-network-insights)
+  - [**Cloud Storage Basics**](./skills/cloud/google-cloud-storage-basics)
+  - [**Cloud Storage Bucket Architect**](./skills/cloud/google-cloud-storage-bucket-architect)
+  - [**Cloud Storage FUSE**](./skills/cloud/google-cloud-storage-fuse)
   - [**Designing and Deploying GCP Infrastructure with Application Design Center**](./skills/cloud/application-design-center-design-deploy)
+  - [**Filestore Auditing Skill**](./skills/cloud/google-cloud-filestore-auditing)
+  - [**Filestore Autoscale**](./skills/cloud/google-cloud-filestore-autoscale)
+  - [**Filestore Log-Based Troubleshooting**](./skills/cloud/google-cloud-filestore-log-troubleshooting)
+  - [**Filestore NFS File Browser**](./skills/cloud/google-cloud-filestore-nfs-browser)
   - [**GKE AI/ML Inference**](./skills/cloud/gke-inference)
   - [**GKE Alert Configuration**](./skills/cloud/gke-alert-configuration)
   - [**GKE App Onboarding**](./skills/cloud/gke-app-onboarding)
@@ -79,23 +106,29 @@ repo to install.
   - [**GKE Reliability**](./skills/cloud/gke-reliability)
   - [**GKE Service Networking Skill**](./skills/cloud/gke-service-networking)
   - [**GKE Storage**](./skills/cloud/gke-storage)
+  - [**GKE Storage Troubleshooting Skill**](./skills/cloud/gke-storage-troubleshooting)
   - [**GKE TPU Dynamic Slices Monitoring & Management**](./skills/cloud/gke-ai-troubleshooting-tpu-dynamic-slices-monitoring)
   - [**GKE Upgrades & Maintenance**](./skills/cloud/gke-upgrades)
   - [**GKE Workload Scaling**](./skills/cloud/gke-workload-scaling)
+  - [**GKE Workload Scaling Troubleshooting Skill**](./skills/cloud/gke-workload-scaling-troubleshooting)
   - [**GKE Workload Troubleshooting Skill**](./skills/cloud/gke-workload-troubleshooting)
-  - [**Google Cloud Filestore Auditing Skill**](./skills/cloud/google-cloud-filestore-auditing)
-  - [**Google Cloud Filestore Autoscale**](./skills/cloud/google-cloud-filestore-autoscale)
-  - [**Google Cloud Filestore NFS File Browser**](./skills/cloud/google-cloud-filestore-nfs-browser)
   - [**Google Cloud global external Application Load Balancer Configuration Skill**](./skills/cloud/google-cloud-global-frontend-configuration)
   - [**Google Cloud Networking Observability Expert**](./skills/cloud/google-cloud-networking-observability)
-  - [**Google Cloud Storage Basics**](./skills/cloud/google-cloud-storage-basics)
-  - [**Google Cloud Storage Bucket Architect**](./skills/cloud/google-cloud-storage-bucket-architect)
-  - [**Google Cloud Storage FUSE**](./skills/cloud/google-cloud-storage-fuse)
+  - [**Troubleshoot GKE TPU reservation stockouts caused by leaked node pool capacity**](./skills/cloud/gke-ai-troubleshooting-tpu-reservation-stockout)
+  - [**Troubleshoot GKE TPU slice creation blocked by an unstable MIG**](./skills/cloud/gke-ai-troubleshooting-tpu-slice-mig-stuck-updating)
+  - [**Troubleshoot GKE TPU VMs stuck in Compute Engine repair (`REPAIRING`)**](./skills/cloud/gke-ai-troubleshooting-tpu-vm-repair-stuck)
+  - [**Troubleshoot TPU slice creation failures caused by partition overlap**](./skills/cloud/gke-ai-troubleshooting-tpu-partition-overlap)
+  - [**Troubleshoot unresponsive GKE TPU and GPU nodes (`NodeStatusUnknown`)**](./skills/cloud/gke-ai-troubleshooting-node-unresponsive-timeout)
 - **Databases and analytics**
   - [**AlloyDB Basics**](./skills/cloud/alloydb-basics)
   - [**BigFrames (BigQuery DataFrame) basics**](./skills/cloud/bigquery-bigframes)
   - [**BigQuery Asset Impact Analysis**](./skills/cloud/datalineage-bigquery-asset-impact-analysis)
   - [**BigQuery Basics**](./skills/cloud/bigquery-basics)
+  - [**BigQuery Migration Service (BQMS) SQL Translator**](./skills/cloud/bigquery-migration-sql-translator)
+  - [**BigQuery Observability**](./skills/cloud/bigquery-observability)
+  - [**BigQuery Optimization Workflow**](./skills/cloud/bigquery-optimization)
+  - [**BigQuery Troubleshooting**](./skills/cloud/bigquery-troubleshooting)
+  - [**BigQuery User-Defined Functions (UDFs)**](./skills/cloud/bigquery-udfs)
   - [**Bigtable Basics**](./skills/cloud/bigtable-basics)
   - [**Cloud SQL Basics**](./skills/cloud/cloud-sql-basics)
   - [**Data Lineage Summary**](./skills/cloud/datalineage-summary)
@@ -104,17 +137,26 @@ repo to install.
   - [**Google Cloud Database Onboarding Skill**](./skills/cloud/cloud-databases-onboarding)
   - [**Managed Service for Apache Airflow (formerly Cloud Composer) DAG troubleshooting guide**](./skills/cloud/managed-airflow-dag-troubleshooting)
   - [**Managed Service for Apache Airflow (formerly Cloud Composer) Migration Guide**](./skills/cloud/managed-airflow-migrations)
+  - [**Managed Service for Apache Airflow (formerly Cloud Composer) recommendations**](./skills/cloud/managed-airflow-recommendations)
   - [**Spanner Basics**](./skills/cloud/spanner-basics)
 - **Developer tools**
+  - [**Cloud Build Basics**](./skills/cloud/cloud-build-basics)
   - [**Developer Device Platform**](./skills/cloud/developer-device-platform-basics)
   - [**gcloud CLI Skill for AI Agents**](./skills/cloud/gcloud)
   - [**Google Agents CLI Onboarding**](./skills/cloud/google-agents-cli-onboarding)
-  - [**Google Cloud Build Basics**](./skills/cloud/cloud-build-basics)
   - [**Google Developer Knowledge**](./skills/developers/retrieving-developer-knowledge)
+- **Application development**
+  - [**Application Integration Authoring**](./skills/cloud/application-integration-authoring)
+  - [**Application Integration Basics**](./skills/cloud/application-integration-basics)
+  - [**Application Integration Troubleshooting**](./skills/cloud/application-integration-troubleshooting)
+  - [**Migrate Legacy Codebases to Safe Rust**](./skills/developers/migrate-to-rust)
 - **Management tools**
+  - [**Cloud Logging Finops**](./skills/cloud/cloud-logging-finops)
   - [**Cloud Monitoring Chart Generation Skill (`cloud-monitoring-chart-generation`)**](./skills/cloud/cloud-monitoring-chart-generation)
   - [**Cloud Monitoring ListTimeSeries Request Generator**](./skills/cloud/cloud-monitoring-list-time-series-request)
+  - [**Cloud Monitoring Notification Channels Configuration**](./skills/cloud/cloud-monitoring-notification-channels-configuration)
   - [**Cloud Monitoring PromQL Generator**](./skills/cloud/cloud-monitoring-promql-query)
+  - [**Cloud Trace Querying Skill (`cloud-trace-querying`)**](./skills/cloud/cloud-trace-querying)
   - [**Configuring Cloud Logging**](./skills/cloud/cloud-logging-configuration-basics)
   - [**Configuring Cross-Project Logging**](./skills/cloud/cloud-logging-cross-project-configuration)
   - [**Generate Logging Query Language queries**](./skills/cloud/cloud-logging-query-generation)
@@ -135,21 +177,27 @@ repo to install.
   - [**Google Cloud Well-Architected Framework skill for the Security pillar**](./skills/cloud/google-cloud-waf-security)
   - [**Google Cloud Well-Architected Framework skill for the Sustainability pillar**](./skills/cloud/google-cloud-waf-sustainability)
 - **Security and identity**
+  - [**API Gateway Backend Security and Rate Limiting**](./skills/cloud/api-gateway-backend-security-and-rate-limiting)
+  - [**Compliance Environment Assessor Skill**](./skills/cloud/assuredworkloads-environment-assessor)
+  - [**Custom Resource Authoring & Synthesis Skill (`assuredworkloads-frameworks-author`)**](./skills/cloud/assuredworkloads-frameworks-author)
+  - [**Data Boundary Framework Navigator (`assuredworkloads-frameworks-navigator`)**](./skills/cloud/assuredworkloads-frameworks-navigator)
   - [**DPoP Adoption & Identity Security Architecture**](./skills/identity/dpop-adoption)
   - [**GKE Platform Security**](./skills/cloud/gke-platform-security)
   - [**GKE Workload Identity Federation Troubleshooting Skill**](./skills/cloud/gke-workload-identity)
   - [**GKE Workload Security**](./skills/cloud/gke-workload-security)
-  - [**Google Cloud IAM Access Troubleshooter & Remediation Orchestrator**](./skills/cloud/iam-helper-for-troubleshooting)
-  - [**Google Cloud Security Command Center Query Skill**](./skills/cloud/google-cloud-scc-query)
+  - [**Google Cloud Security Command Center Remediation**](./skills/cloud/google-cloud-scc-remediation)
   - [**Google SecOps Case Management Skill for AI Agents**](./skills/cloud/secops-cases)
   - [**Google SecOps Detection Engineering Skill**](./skills/cloud/secops-detection-engineering)
   - [**Google SecOps Incident & Entity Investigation Skill**](./skills/cloud/secops-investigate)
   - [**Google SecOps Security Alert Triage Specialist**](./skills/cloud/secops-triage)
   - [**Google SecOps Threat Hunting Skill**](./skills/cloud/secops-hunt)
+  - [**IAM Access Troubleshooter & Remediation Orchestrator on Google Cloud**](./skills/cloud/iam-helper-for-troubleshooting)
   - [**IAM Helper for Policy Management**](./skills/cloud/iam-helper-for-policy-management)
   - [**IAM Policy Simulator (v1 Allow)**](./skills/cloud/iam-helper-for-policy-simulator)
   - [**Privileged Access Manager (PAM)**](./skills/cloud/iam-helper-for-privileged-access-management)
   - [**SecOps Detection Coverage Skill**](./skills/cloud/detection-engineering-coverage-evaluation)
+  - [**Security Command Center Query Skill on Google Cloud**](./skills/cloud/google-cloud-scc-query)
+  - [**Sign In With Google (SiwG) Integration & Security Architecture**](./skills/identity/sign-in-with-google-web)
 - **Web and app hosting**
   - [**Cloud Run Alert Configuration**](./skills/cloud/cloud-run-alert-configuration)
   - [**Cloud Run Basics**](./skills/cloud/cloud-run-basics)

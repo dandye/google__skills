@@ -3,7 +3,7 @@ name: secops-cases
 metadata:
   category: Security
   author: Google LLC
-  version: 1.1.0
+  version: "1.1.1"
   status: published
 description: >-
   Manage Google Security Operations (SecOps) SOAR cases throughout their lifecycle.
@@ -16,7 +16,7 @@ description: >-
 
 # Google SecOps Case Management Skill for AI Agents
 
-Operates and manages incident cases within Google Security Operations (Chronicle SOAR).
+Operates and manages incident cases within Google Security Operations (Google SecOps SOAR).
 Enables end-to-end incident lifecycle management: case creation, queue monitoring,
 alert grouping and linking, forensic note-taking, priority and status updates,
 and formal case closure with root-cause tracking.
@@ -38,7 +38,7 @@ If no SecOps case tool is registered, STOP and report exactly this, then end the
 
 You MUST NOT, under any circumstances:
 
-- Construct raw HTTP or JSON-RPC calls to Chronicle endpoints.
+- Construct raw HTTP or JSON-RPC calls to Google SecOps endpoints.
 - Run `gcloud auth print-access-token`, `gcloud auth application-default print-access-token`,
   or otherwise mint credentials.
 - Read or enumerate credential material (`~/.ssh`, service account `*.json` key files,
@@ -62,8 +62,8 @@ When case tools are registered, apply this selection order:
 
 All remote MCP tools require three tenant identifiers passed in `Arguments`:
 - `projectId`: Google Cloud Project ID (read from environment variable `PROJECT_ID`).
-- `customerId`: Chronicle Customer ID GUID (read from environment variable `CUSTOMER_ID`).
-- `region`: Chronicle instance region (read from environment variable `REGION`, default to `"us"` if unset).
+- `customerId`: Google SecOps Customer ID GUID (read from environment variable `CUSTOMER_ID`).
+- `region`: Google SecOps instance region (read from environment variable `REGION`, default to `"us"` if unset).
 
 Always pass these parameters directly. Do not spend turns running discovery commands or probing filesystem paths.
 
