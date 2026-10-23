@@ -1,8 +1,8 @@
 # Google SecOps Plugin
 
-Agent plugin providing Security Operations capabilities for Google Security Operations (Chronicle SIEM and SOAR).
+Agent plugin providing Security Operations capabilities for Google Security Operations (SecOps).
 
-This plugin packages domain-specific agent skills, environment configuration rules, and remote Model Context Protocol (MCP) server definitions connecting to Google SecOps.
+This plugin packages domain-specific agent skills, environment configuration rules, and remote Model Context Protocol (MCP) server definitions connecting to the Google SecOps remote MCP endpoint (`https://chronicle.us.rep.googleapis.com/mcp`).
 
 ---
 
@@ -20,23 +20,26 @@ The Google SecOps plugin equips coding and operations agents with specialized wo
 
 ## Prerequisites and Authentication
 
-Before invoking Google SecOps skills or the Chronicle MCP server, ensure your local environment satisfies the following prerequisites:
+Before invoking Google SecOps skills or the remote MCP server, ensure your local environment satisfies the following prerequisites:
 
 ### 1. Google Cloud Authentication
 
 Authenticate with Application Default Credentials (ADC) and configure your quota project:
 
 ```bash
-gcloud auth application-default login
-gcloud auth application-default set-quota-project ${PROJECT_ID}
+ACCOUNT="your-email@example.com"
+PROJECT_ID="your-gcp-project-id"
+gcloud auth login "$ACCOUNT" --update-adc
+gcloud auth application-default set-quota-project "$PROJECT_ID"
 ```
 
 ### 2. Enable Chronicle MCP Service
 
-The Chronicle MCP service must be enabled in your Google Cloud project:
+The `chronicle.googleapis.com/mcp` service must be enabled in your Google Cloud project:
 
 ```bash
-gcloud beta services mcp enable chronicle.googleapis.com/mcp --project=${PROJECT_ID}
+PROJECT_ID="your-gcp-project-id"
+gcloud beta services mcp enable chronicle.googleapis.com/mcp --project="$PROJECT_ID"
 ```
 
 ### 3. Web Console First-Login Requirement
@@ -49,23 +52,26 @@ Set the following environment variables in your active shell or agent profile:
 
 ```bash
 export PROJECT_ID="your-gcp-project-id"
-export CUSTOMER_ID="your-chronicle-customer-uuid"
-export REGION="us" # or your Chronicle region (e.g. europe-west1)
+export CUSTOMER_ID="your-secops-customer-uuid"
+export REGION="us" # or your regional prefix (e.g. europe-west1)
 export SERVER_URL="https://chronicle.us.rep.googleapis.com/mcp"
 ```
 
-### 5. Codex and Claude: bundled ADC header helper
+### 5. Codex and Claude: Bundled ADC Header Helper
 
 Both native manifests invoke the shared `scripts/http-headers.ts` script:
 Codex uses `http_headers_helper`, and Claude uses `headersHelper`. Install
 [Bun](https://bun.sh/docs/installation) and ensure both `bun` and `gcloud` are on
 the PATH inherited by your client. The script runs
 `gcloud auth application-default print-access-token` and returns an
-`Authorization: Bearer …` header plus `x-goog-user-project`. It uses
-`PROJECT_ID` when present in the helper process, otherwise the active gcloud
-project. No manual `mcp_servers.secops` entry is needed. It emits one JSON
-object to stdout and fails without emitting headers if ADC or project lookup
-fails. It does not persist tokens or forward gcloud output on errors.
+`Authorization: Bearer ...` header, `x-goog-user-project`, and
+`User-Agent: agent-skills/1.0 (skill:google-secops)`. It also sets
+`CLOUDSDK_METRICS_REQUEST_ATTRIBUTION="agent-skills/1.0 (skill:google-secops; script:http-headers.ts)"`
+for `gcloud` subprocess calls. It uses `PROJECT_ID` when present in the helper
+process, otherwise the active `gcloud` project. No manual `mcp_servers.secops`
+entry is needed. It emits one JSON object to stdout and fails without emitting
+headers if ADC or project lookup fails. It does not persist tokens or forward
+`gcloud` output on errors.
 
 Claude resolves the script through `${CLAUDE_PLUGIN_ROOT}`, so it follows the
 installed plugin directory.
@@ -74,7 +80,7 @@ installed plugin directory.
 plugin-root variable in HTTP helper commands, and HTTP helpers run from the
 session directory rather than the plugin directory. The Codex launcher
 therefore uses the exact versioned path under
-`${HOME}/.codex/plugins/cache/google-plugins/google-secops/1.2.2/`. This supports
+`${HOME}/.codex/plugins/cache/google-plugins/google-secops/1.2.3/`. This supports
 the default Codex home and the `google-plugins` marketplace name, independently
 of the current working directory. Custom Codex homes, renamed marketplaces,
 and remote executors are not supported by this launcher. A missing script
@@ -89,14 +95,16 @@ Claude documents plugin paths in its [plugin reference](https://code.claude.com/
 Codex 0.154.0 starts header helpers with a restricted environment. Arbitrary
 variables such as `PROJECT_ID`, `CLOUDSDK_CONFIG`, and
 `GOOGLE_APPLICATION_CREDENTIALS` are not forwarded, so exporting them before
-launching Codex is not sufficient for this version. Use the default gcloud
+launching Codex is not sufficient for this version. Use the default `gcloud`
 configuration and ADC available under the inherited home directory, and select
 the intended quota project there:
 
 ```bash
-gcloud config set project YOUR_QUOTA_PROJECT_ID
-gcloud auth application-default login
-gcloud auth application-default set-quota-project YOUR_QUOTA_PROJECT_ID
+ACCOUNT="your-email@example.com"
+QUOTA_PROJECT_ID="your-gcp-project-id"
+gcloud config set project "$QUOTA_PROJECT_ID"
+gcloud auth login "$ACCOUNT" --update-adc
+gcloud auth application-default set-quota-project "$QUOTA_PROJECT_ID"
 ```
 
 Ensure `gcloud` is on the PATH inherited by Codex. This runtime limitation is
@@ -106,13 +114,25 @@ and is visible in the [0.154.0 helper implementation](https://github.com/openai/
 The root `plugin.json` intentionally omits the Agent Plugins `$schema` marker.
 With that marker, Codex prioritizes the portable manifest and reads `mcp.json`,
 whose schema cannot express this helper. Keep the helper launcher in the native
-Codex manifest; adding the marker back bypasses it. Gemini and agy retain their
+Codex manifest; adding the marker back bypasses it. Gemini and `agy` retain their
 existing manifests and ADC configuration.
 
 Codex caches helper headers per connection and can refresh them after an
 authentication failure. See the [Codex MCP documentation](https://developers.openai.com/codex/mcp).
 
-### 6. Preflight Verification
+### 6. Usage Attribution (1x Per MCP Connection)
+
+All five MCP server descriptors (`mcp.json`, `mcp_config.json`, `gemini-extension.json`, `.claude-plugin/plugin.json`, and `.codex-plugin/plugin.json`) as well as the dynamic header helper (`scripts/http-headers.ts`) attach a static connection-level attribution header:
+
+```json
+{
+  "User-Agent": "agent-skills/1.0 (skill:google-secops)"
+}
+```
+
+Because remote MCP connections negotiate HTTP headers once at session initialization (or during helper refresh), attribution is configured once at the plugin MCP transport boundary rather than injected via per-call `curl` or `gcloud` instructions inside individual skill prompts.
+
+### 7. Preflight Verification
 
 Agent runtimes register MCP tools once, at startup. If the connection fails, the session
 simply has no SecOps tools; there is usually no error and no prompt. Ensure all environment
@@ -123,7 +143,7 @@ Two consequences follow from startup-only registration:
 * Environment-dependent client configuration must be available **at launch**. If you
   rely on `direnv` or a `.env` file, enter the project directory before starting the CLI.
   Codex 0.154.0 header helpers have the additional environment restriction described
-  above; they use the default gcloud configuration even if custom credential-location
+  above; they use the default `gcloud` configuration even if custom credential-location
   variables were exported in the parent shell.
 * A configuration change made mid-session takes effect only after a restart.
 
@@ -218,7 +238,7 @@ invoke a read-only SecOps tool against your configured customer as well.
 
 If startup reports that the HTTP headers helper exited, check ADC with
 `gcloud auth application-default print-access-token > /dev/null`. A
-reauthentication error requires `gcloud auth application-default login` before
+reauthentication error requires `gcloud auth login "$ACCOUNT" --update-adc` before
 retrying. Remove a manually configured duplicate `mcp_servers.secops` entry if
 you previously used the workaround, so the test exercises the plugin server.
 
@@ -228,24 +248,23 @@ you previously used the workaround, so the test exercises the plugin server.
 
 ### Verify Remote MCP Connectivity and Skill Discovery
 
-Run a quick query through your agent to verify communication with the Chronicle MCP server:
+Run a quick query through your agent to verify communication with the Google SecOps MCP server:
 
 ```text
-Check Google SecOps MCP connectivity by querying recent alerts in customer ${CUSTOMER_ID}.
+Check Google SecOps MCP connectivity by querying recent alerts in customer <CUSTOMER_ID>.
 ```
 
 Expected behavior:
 * The agent loads the `google-secops` environment rules (`rules/secops-environment.md`).
 * The agent identifies and executes the relevant skill workflow (e.g. `secops-triage`).
-* The agent issues an authenticated streamable-http POST to `${SERVER_URL}`.
+* The agent issues an authenticated streamable-http POST to `https://chronicle.us.rep.googleapis.com/mcp` with `User-Agent: agent-skills/1.0 (skill:google-secops)`.
 * A structured response is returned from Google SecOps.
-
 
 ---
 
 ## Plugin Directory Layout
 
-```
+```text
 plugins/cloud/google-secops/
 ├── README.md                      # Plugin installation and usage documentation
 ├── plugin.json                    # Plugin metadata for agy

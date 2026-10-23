@@ -1,12 +1,15 @@
 {
   "name": "google-secops",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Essential Security Operations skills for Triage, Investigation, and Hunting.",
   "skills": "./skills/",
   "mcpServers": {
     "secops": {
       "url": "https://chronicle.us.rep.googleapis.com/mcp",
-      "http_headers_helper": "bun \"${HOME}/.codex/plugins/cache/google-plugins/google-secops/1.2.2/scripts/http-headers.ts\""
+      "http_headers": {
+        "User-Agent": "agent-skills/1.0 (skill:google-secops)"
+      },
+      "http_headers_helper": "bun \"${HOME}/.codex/plugins/cache/google-plugins/google-secops/1.2.3/scripts/http-headers.ts\""
     }
   },
   "interface": {

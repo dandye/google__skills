@@ -3,9 +3,15 @@ import { mkdtemp, chmod, mkdir, rm, symlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
+const EXPECTED_USER_AGENT = "agent-skills/1.0 (skill:google-secops)";
+const EXPECTED_GCLOUD_ATTRIBUTION = "agent-skills/1.0 (skill:google-secops; script:http-headers.ts)";
+
 const root = new URL("../", import.meta.url);
 const codex = await Bun.file(new URL(".codex-plugin/plugin.json", root)).json();
 const claude = await Bun.file(new URL(".claude-plugin/plugin.json", root)).json();
+const gemini = await Bun.file(new URL("gemini-extension.json", root)).json();
+const mcpJson = await Bun.file(new URL("mcp.json", root)).json();
+const mcpConfig = await Bun.file(new URL("mcp_config.json", root)).json();
 const script = await Bun.file(new URL("scripts/http-headers.ts", root)).text();
 const launchers = [
   { name: "Codex", command: codex.mcpServers.secops.http_headers_helper },
@@ -35,6 +41,10 @@ async function runHelper(command: string, options: Options = {}) {
     if (!options.missingGcloud) {
       const gcloud = join(bin, "gcloud");
       await Bun.write(gcloud, `#!/bin/sh
+if [ "$CLOUDSDK_METRICS_REQUEST_ATTRIBUTION" != "${EXPECTED_GCLOUD_ATTRIBUTION}" ]; then
+  echo "missing or wrong CLOUDSDK_METRICS_REQUEST_ATTRIBUTION: $CLOUDSDK_METRICS_REQUEST_ATTRIBUTION" >&2
+  exit 98
+fi
 case "$*" in
   'auth application-default print-access-token') printf '%s' "$TEST_TOKEN"; printf '%s' 'private diagnostic' >&2; exit "$TEST_TOKEN_STATUS";;
   'config get-value project') printf '%s' "$TEST_PROJECT"; exit "$TEST_PROJECT_STATUS";;
@@ -62,18 +72,57 @@ esac
   }
 }
 
-test("native Codex manifest is selectable and versioned launchers use the shared script", async () => {
+test("native Codex manifest is selectable, versioned launchers use the shared script, and all MCP configs set 1x User-Agent attribution", async () => {
   const metadata = await Bun.file(new URL("plugin.json", root)).json();
   expect(metadata.$schema).toBeUndefined();
   expect(codex.name).toBe(metadata.name);
   expect(codex.version).toBe(metadata.version);
   expect(claude.version).toBe(codex.version);
+  expect(gemini.version).toBe(codex.version);
   expect(codex.mcpServers.secops.url).toBe("https://chronicle.us.rep.googleapis.com/mcp");
   expect(claude.mcpServers.secops.url).toBe(codex.mcpServers.secops.url);
+  expect(mcpJson.mcpServers.secops.url).toBe(codex.mcpServers.secops.url);
+  expect(mcpConfig.mcpServers.secops.serverUrl).toBe(codex.mcpServers.secops.url);
+  expect(gemini.mcpServers.secops.httpUrl).toBe(codex.mcpServers.secops.url);
+  expect(mcpJson.mcpServers.secops.headers["User-Agent"]).toBe(EXPECTED_USER_AGENT);
+  expect(mcpConfig.mcpServers.secops.headers["User-Agent"]).toBe(EXPECTED_USER_AGENT);
+  expect(gemini.mcpServers.secops.headers["User-Agent"]).toBe(EXPECTED_USER_AGENT);
+  expect(claude.mcpServers.secops.headers["User-Agent"]).toBe(EXPECTED_USER_AGENT);
+  expect(codex.mcpServers.secops.http_headers["User-Agent"]).toBe(EXPECTED_USER_AGENT);
   expect(codex.mcpServers.secops.http_headers_helper).toBe(
     'bun "${HOME}/.codex/plugins/cache/google-plugins/google-secops/' + codex.version + '/scripts/http-headers.ts"',
   );
   expect(claude.mcpServers.secops.headersHelper).toBe('bun "${CLAUDE_PLUGIN_ROOT}/scripts/http-headers.ts"');
+});
+
+test("SecOps and Detection Engineering skills do not include runtime curl/gcloud Usage Attribution prompts", async () => {
+  const repoRoot = new URL("../../../", root);
+  const packagedSkills = [
+    "secops-cases",
+    "secops-detection-engineering",
+    "secops-hunt",
+    "secops-investigate",
+    "secops-triage",
+  ];
+  const canonicalSkills = [...packagedSkills, "detection-engineering-coverage-evaluation"];
+
+  for (const skill of canonicalSkills) {
+    const skillMdFile = Bun.file(new URL(`skills/cloud/${skill}/SKILL.md`, repoRoot));
+    const attributionRef = Bun.file(new URL(`skills/cloud/${skill}/references/attribution.md`, repoRoot));
+    expect(await skillMdFile.exists()).toBe(true);
+    expect(await attributionRef.exists()).toBe(false);
+    const content = await skillMdFile.text();
+    expect(content).not.toContain("## Usage Attribution");
+    expect(content).not.toContain("references/attribution.md");
+  }
+
+  for (const skill of packagedSkills) {
+    const canonicalContent = await Bun.file(new URL(`skills/cloud/${skill}/SKILL.md`, repoRoot)).text();
+    const packagedContent = await Bun.file(new URL(`skills/${skill}/SKILL.md`, root)).text();
+    const packagedAttributionRef = Bun.file(new URL(`skills/${skill}/references/attribution.md`, root));
+    expect(packagedContent).toBe(canonicalContent);
+    expect(await packagedAttributionRef.exists()).toBe(false);
+  }
 });
 
 for (const { name, command } of launchers) {
@@ -81,7 +130,11 @@ for (const { name, command } of launchers) {
     test("runs the installed script from unrelated cwd and paths containing spaces", async () => {
       const result = await runHelper(command);
       expect(result.status).toBe(0);
-      expect(JSON.parse(result.stdout)).toEqual({ Authorization: "Bearer test-token", "x-goog-user-project": "test-project" });
+      expect(JSON.parse(result.stdout)).toEqual({
+        Authorization: "Bearer test-token",
+        "User-Agent": EXPECTED_USER_AGENT,
+        "x-goog-user-project": "test-project",
+      });
       expect(result.stderr).toBe("");
     });
 

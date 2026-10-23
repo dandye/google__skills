@@ -2,7 +2,10 @@
   "mcpServers": {
     "secops": {
       "serverUrl": "https://chronicle.us.rep.googleapis.com/mcp",
-      "authProviderType": "google_credentials"
+      "authProviderType": "google_credentials",
+      "headers": {
+        "User-Agent": "agent-skills/1.0 (skill:google-secops)"
+      }
     }
   }
 }

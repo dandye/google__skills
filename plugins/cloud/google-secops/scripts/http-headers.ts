@@ -1,4 +1,7 @@
-/** Emit runtime ADC headers for the Codex and Claude Streamable HTTP clients. */
+/** Emit runtime ADC and attribution headers for Codex and Claude Streamable HTTP clients. */
+const USER_AGENT = "agent-skills/1.0 (skill:google-secops)";
+const GCLOUD_ATTRIBUTION = "agent-skills/1.0 (skill:google-secops; script:http-headers.ts)";
+
 function fail(message: string): never {
   console.error(`google-secops: ${message}`);
   process.exit(1);
@@ -10,6 +13,10 @@ function gcloud(args: string[], advice: string): string {
       stdin: "ignore",
       stdout: "pipe",
       stderr: "pipe",
+      env: {
+        ...process.env,
+        CLOUDSDK_METRICS_REQUEST_ATTRIBUTION: GCLOUD_ATTRIBUTION,
+      },
     });
     // Do not forward stdout/stderr on failure: they may contain credentials.
     if (result.exitCode !== 0) fail(advice);
@@ -33,5 +40,6 @@ if (!/^[a-zA-Z0-9:.-]+$/.test(project)) fail(projectAdvice);
 // JSON serialization keeps stdout a single header object. Never persist tokens.
 console.log(JSON.stringify({
   Authorization: `Bearer ${token}`,
+  "User-Agent": USER_AGENT,
   "x-goog-user-project": project,
 }));
