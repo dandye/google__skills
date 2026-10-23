@@ -3,7 +3,7 @@ name: secops-cases
 metadata:
   category: Security
   author: Google LLC
-  version: "1.1.1"
+  version: "1.1.3"
   status: published
 description: >-
   Manage Google Security Operations (SecOps) SOAR cases throughout their lifecycle.
@@ -53,7 +53,7 @@ A missing tool is a configuration failure to report, never an obstacle to route 
 When case tools are registered, apply this selection order:
 
 1. **Remote MCP Tools (Primary)**: Prioritize remote tools exposed by the
-   `secops` MCP server.
+   `google-security-operations` MCP server.
 2. **Local MCP Tools (Alternate)**: Use local Python MCP server tools only when they are
    themselves registered in the session and the remote equivalent is absent from the tool
    list. An unregistered local server is not a fallback; it is the stop condition above.

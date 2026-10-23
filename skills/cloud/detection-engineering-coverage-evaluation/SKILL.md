@@ -1,7 +1,7 @@
 ---
 name: detection-engineering-coverage-evaluation
 metadata:
-  version: "1.0.2"
+  version: "1.0.3"
   category: Security
 description: >-
   Automates the end-to-end detection engineering workflow in Google SecOps using MCP tools.
@@ -19,12 +19,6 @@ This skill guides the agent through an end-to-end detection engineering
 lifecycle using Google SecOps MCP tools. It handles multiple Threat Detection
 Opportunities (TDOs) and ensures exhaustive coverage evaluation for all
 generated synthetic events.
-
-## Usage Attribution
-
-**MUST READ**: Before executing any `gcloud`, REST API, or MCP command, you
-MUST read and follow the instructions in
-[Usage Attribution](references/attribution.md).
 
 ## Workflow Execution Checklist
 

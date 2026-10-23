@@ -2,44 +2,45 @@
   "name": "google-secops",
   "contextFileName": "GEMINI.md",
   "description": "Essential Security Operations skills for Triage, Investigation, and Hunting.",
-  "version": "1.2.0",
+  "version": "1.2.3",
   "skills": [
     "skills/secops-triage",
     "skills/secops-investigate",
     "skills/secops-hunt",
     "skills/secops-cases",
-    "skills/secops-detection-engineering"
+    "skills/secops-detection-engineering",
+    "skills/detection-engineering-coverage-evaluation"
   ],
   "settings": [
     {
       "name": "PROJECT_ID",
-      "description": "Your GCP Project ID (from /settings/profile).",
+      "description": "Your Google Cloud Project ID (from /settings/profile).",
       "envVar": "PROJECT_ID",
       "sensitive": false
     },
     {
       "name": "CUSTOMER_ID",
-      "description": "Your Chronicle Customer UUID (from /settings/profile).",
+      "description": "Your Google SecOps Customer UUID (from /settings/profile).",
       "envVar": "CUSTOMER_ID",
       "sensitive": false
     },
     {
       "name": "REGION",
-      "description": "Your Chronicle Region (e.g. 'us', 'europe-west1').",
+      "description": "Your Google SecOps Region (e.g. 'us', 'europe-west1').",
       "envVar": "REGION",
       "sensitive": false
     },
     {
       "name": "SERVER_URL",
       "defaultValue": "https://chronicle.us.rep.googleapis.com/mcp",
-      "description": "The URL of the remote MCP server See https://docs.cloud.google.com/chronicle/docs/secops/use-google-secops-mcp.",
+      "description": "The URL of the remote MCP server. See https://docs.cloud.google.com/chronicle/docs/secops/use-google-secops-mcp.",
       "envVar": "SERVER_URL",
       "sensitive": false
     }
   ],
   "mcpServers": {
     "secops": {
-      "serverUrl": "${SERVER_URL}",
+      "httpUrl": "https://chronicle.us.rep.googleapis.com/mcp",
       "authProviderType": "google_credentials",
       "oauth": {
         "scopes": [
@@ -47,6 +48,7 @@
         ]
       },
       "headers": {
+        "User-Agent": "agent-skills/1.0 (skill:google-secops)",
         "x-goog-user-project": "${PROJECT_ID}"
       },
       "env": {

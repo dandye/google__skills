@@ -3,7 +3,10 @@
   "mcpServers": {
     "secops": {
       "type": "streamable-http",
-      "url": "https://chronicle.us.rep.googleapis.com/mcp"
+      "url": "https://chronicle.us.rep.googleapis.com/mcp",
+      "headers": {
+        "User-Agent": "agent-skills/1.0 (skill:google-secops)"
+      }
     }
   }
 }
