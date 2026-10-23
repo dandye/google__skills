@@ -1,7 +1,7 @@
 {
   "name": "google-secops",
   "description": "Essential Security Operations skills for Triage, Investigation, and Hunting.",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "author": {
     "name": "Google LLC"
   },
@@ -9,7 +9,7 @@
     "secops": {
       "type": "http",
       "url": "https://chronicle.us.rep.googleapis.com/mcp",
-      "headersHelper": "TOKEN=$(gcloud auth application-default print-access-token 2>/dev/null); if [ -z \"$TOKEN\" ]; then echo 'google-secops: no ADC token; run: gcloud auth application-default login' >&2; exit 1; fi; PROJECT=\"${PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}\"; if [ -z \"$PROJECT\" ]; then echo 'google-secops: no quota project; set PROJECT_ID or run: gcloud config set project PROJECT_ID' >&2; exit 1; fi; printf '{\"Authorization\": \"Bearer %s\", \"x-goog-user-project\": \"%s\"}' \"$TOKEN\" \"$PROJECT\""
+      "headersHelper": "bun \"${CLAUDE_PLUGIN_ROOT}/scripts/http-headers.ts\""
     }
   }
 }

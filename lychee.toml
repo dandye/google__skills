@@ -1,0 +1,19 @@
+# Output settings
+no_progress = true
+verbose = "error"
+accept = ["200", "302", "403", "503"]
+
+exclude_path = [
+    "README\\.md$",
+    "CHANGELOG\\.md$",
+]
+
+# Maximum simultaneous requests to the same host
+host_concurrency = 2
+
+# Minimum interval between requests to the same host
+host_request_interval = "500ms"
+
+# Set user agent to avoid 403 responses from npm
+[hosts."www.npmjs.com"]
+headers = { "User-Agent" = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36" }

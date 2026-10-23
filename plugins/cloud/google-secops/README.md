@@ -54,14 +54,37 @@ export REGION="us" # or your Chronicle region (e.g. europe-west1)
 export SERVER_URL="https://chronicle.us.rep.googleapis.com/mcp"
 ```
 
-### 5. Codex: automatic ADC headers
+### 5. Codex and Claude: bundled ADC header helper
 
-Codex loads the native `.codex-plugin/plugin.json` manifest, which bundles
-`http_headers_helper` for the Streamable HTTP server. The helper runs
+Both native manifests invoke the shared `scripts/http-headers.ts` script:
+Codex uses `http_headers_helper`, and Claude uses `headersHelper`. Install
+[Bun](https://bun.sh/docs/installation) and ensure both `bun` and `gcloud` are on
+the PATH inherited by your client. The script runs
 `gcloud auth application-default print-access-token` and returns an
 `Authorization: Bearer …` header plus `x-goog-user-project`. It uses
 `PROJECT_ID` when present in the helper process, otherwise the active gcloud
-project. No manual `mcp_servers.secops` entry is needed.
+project. No manual `mcp_servers.secops` entry is needed. It emits one JSON
+object to stdout and fails without emitting headers if ADC or project lookup
+fails. It does not persist tokens or forward gcloud output on errors.
+
+Claude resolves the script through `${CLAUDE_PLUGIN_ROOT}`, so it follows the
+installed plugin directory.
+
+**Codex 0.154.0 installation constraint:** this version does not expand a
+plugin-root variable in HTTP helper commands, and HTTP helpers run from the
+session directory rather than the plugin directory. The Codex launcher
+therefore uses the exact versioned path under
+`${HOME}/.codex/plugins/cache/google-plugins/google-secops/1.2.2/`. This supports
+the default Codex home and the `google-plugins` marketplace name, independently
+of the current working directory. Custom Codex homes, renamed marketplaces,
+and remote executors are not supported by this launcher. A missing script
+fails; it never searches for or runs another cached version. When releasing a
+new version, update the launcher path with the manifest versions; the tests
+enforce this relationship.
+
+This limitation is visible in the [native plugin parser](https://github.com/openai/codex/blob/rust-v0.154.0/codex-rs/codex-mcp/src/plugin_config.rs#L59-L70)
+and [HTTP helper execution](https://github.com/openai/codex/blob/rust-v0.154.0/codex-rs/rmcp-client/src/http_headers.rs#L411-L437).
+Claude documents plugin paths in its [plugin reference](https://code.claude.com/docs/en/plugins-reference#environment-variables).
 
 Codex 0.154.0 starts header helpers with a restricted environment. Arbitrary
 variables such as `PROJECT_ID`, `CLOUDSDK_CONFIG`, and
@@ -82,8 +105,8 @@ and is visible in the [0.154.0 helper implementation](https://github.com/openai/
 
 The root `plugin.json` intentionally omits the Agent Plugins `$schema` marker.
 With that marker, Codex prioritizes the portable manifest and reads `mcp.json`,
-whose schema cannot express this helper. Keep authentication in the native
-Codex manifest; adding the marker back bypasses it. Other clients retain their
+whose schema cannot express this helper. Keep the helper launcher in the native
+Codex manifest; adding the marker back bypasses it. Gemini and agy retain their
 existing manifests and ADC configuration.
 
 Codex caches helper headers per connection and can refresh them after an
@@ -166,6 +189,10 @@ claude plugin marketplace add google/skills
 claude plugin install google-secops@google-plugins
 ```
 
+To test this checkout, run `claude plugin marketplace add ./` from the repository
+root, then run the install command above. Confirm `claude mcp list` reports the
+plugin server connected and invoke a read-only tool against your tenant.
+
 ### OpenAI Codex
 
 Add the Google plugins marketplace, then install the plugin:
@@ -226,9 +253,11 @@ plugins/cloud/google-secops/
 ├── mcp.json                       # Portable MCP server definition
 ├── mcp_config.json                # MCP server definition (read by agy / Jetski)
 ├── .claude-plugin/
-│   └── plugin.json                # Claude plugin manifest, incl. its MCP server and ADC helper
+│   └── plugin.json                # Claude MCP server and shared script launcher
 ├── .codex-plugin/
-│   └── plugin.json                # Native Codex manifest with ADC header helper
+│   └── plugin.json                # Codex MCP server and shared script launcher
+├── scripts/
+│   └── http-headers.ts            # Shared runtime ADC header helper (requires Bun)
 ├── rules/
 │   └── secops-environment.md      # Environment parameters and ADC auth instructions
 └── skills/                        # Packaged agent skills (with YAML frontmatter)
