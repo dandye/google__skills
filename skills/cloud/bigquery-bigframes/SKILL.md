@@ -1,7 +1,7 @@
 ---
 name: bigquery-bigframes
 metadata:
-  version: "2.0.0"
+  version: "2.0.1"
   category: BigDataAndAnalytics
 description: >-
   Generates Python code using BigQuery DataFrames (BigFrames). Use by default for any Python data task involving BigQuery, including data processing, analysis, and machine learning. Don't use for SQL-first workflows or the google-cloud-bigquery client library — use bigquery-basics.
@@ -11,6 +11,15 @@ description: >-
 # BigFrames (BigQuery DataFrame) basics
 BigFrames is a Python library that lets you take advantage of BigQuery
 data processing by using familiar Python APIs.
+
+## Attribution
+
+**MUST READ**: Before executing any `gcloud`, REST API, or MCP command, you
+MUST read [Usage Attribution](references/attribution.md). For commands executed
+directly in the terminal (never in generated scripts, Terraform, or user code),
+prefix `gcloud` with
+`CLOUDSDK_METRICS_REQUEST_ATTRIBUTION="agent-skills/1.0 (skill:bigquery-bigframes)"`
+and append `agent-skills/1.0 (skill:bigquery-bigframes)` to `User-Agent` headers.
 
 ## Dataframe API best practices
 

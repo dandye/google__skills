@@ -1,11 +1,43 @@
 {
   "name": "google-cloud-developer",
-  "version": "1.1.4",
+  "version": "1.1.13",
   "description": "Google Cloud guidance for coding agents: first-project onboarding, authentication and credential selection, and safety-critical validation for gcloud CLI commands. Includes the Google Developer Knowledge MCP server for grounded, up-to-date Google Cloud documentation.",
+  "author": {
+    "name": "Google LLC",
+    "url": "https://cloud.google.com"
+  },
+  "homepage": "https://github.com/google/skills/tree/main/plugins/cloud/google-cloud-developer",
+  "repository": "https://github.com/google/skills",
+  "license": "Apache-2.0",
+  "keywords": [
+    "google-cloud",
+    "gcloud",
+    "authentication",
+    "onboarding"
+  ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Google Cloud Developer",
-    "shortDescription": "Onboarding, auth, and gcloud safety for Google Cloud",
-    "category": "Productivity"
+    "shortDescription": "Google Cloud guidance & tools",
+    "longDescription": "Google Cloud guidance for coding agents: first-project onboarding, authentication and credential selection, and safety-critical validation for gcloud CLI commands.",
+    "developerName": "Google LLC",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Google Cloud onboarding",
+      "Authentication guidance",
+      "gcloud command safety",
+      "Google developer documentation"
+    ],
+    "websiteURL": "https://cloud.google.com",
+    "supportURL": "https://cloud.google.com/support",
+    "privacyPolicyURL": "https://policies.google.com/privacy",
+    "termsOfServiceURL": "https://policies.google.com/terms",
+    "defaultPrompt": [
+      "Help me set up a new Google Cloud project, link billing, and configure local authentication.",
+      "Configure Application Default Credentials (ADC) and IAM permissions for my local development environment.",
+      "Search official Google Cloud documentation using Developer Knowledge and validate my gcloud CLI commands."
+    ],
+    "logo": "./assets/logo.svg",
+    "composerIcon": "./assets/logo.svg"
   }
 }

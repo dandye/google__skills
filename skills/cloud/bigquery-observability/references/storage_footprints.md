@@ -3,14 +3,17 @@
 ## Table of Contents
 
 -   [Storage Snapshot & Billing Model Comparison Query](#storage-snapshot-billing-model-comparison-query)
-    (Lines 15-104)
+    (Lines 18-107)
 -   [Dataset Storage Configuration Query](#dataset-storage-configuration-query)
-    (Lines 105-124)
+    (Lines 108-127)
 -   [Partition Level Aging & Storage Query](#partition-level-aging-storage-query)
-    (Lines 125-143)
+    (Lines 128-146)
 -   [Daily Storage Usage Timeline (Time-Integral Conversion)](#daily-storage-usage-timeline-time-integral-conversion)
-    (Lines 144-172)
--   [Placeholder Definitions](#placeholder-definitions) (Lines 173-178)
+    (Lines 147-175)
+-   [Table Partitioning, Clustering & Filter Enforcement Audit](#table-partitioning-clustering-filter-enforcement-audit)
+    (Lines 176-238)
+-   [Search Index Coverage Query](#search-index-coverage-query) (Lines 239-262)
+-   [Placeholder Definitions](#placeholder-definitions) (Lines 263-268)
 
 ## Storage Snapshot & Billing Model Comparison Query
 
@@ -168,6 +171,93 @@ GROUP BY
 ORDER BY
   usage_date DESC,
   avg_daily_logical_gib DESC;
+```
+
+## Table Partitioning, Clustering & Filter Enforcement Audit
+
+Verify whether referenced tables have `DATE`, `TIMESTAMP`, `DATETIME`, or
+`INT64` integer-range partitioning (`is_partitioning_column = 'YES'` and
+`data_type`), which high-cardinality filtering and grouping columns are in the
+`CLUSTER BY` key (`clustering_ordinal_position`), and whether
+`require_partition_filter` is enabled in `INFORMATION_SCHEMA.TABLE_OPTIONS`.
+Tables where `partitioning_column IS NULL` are unpartitioned (`DATE` /
+`TIMESTAMP` / `DATETIME` indicate time-unit partitioning; `INT64` indicates
+integer-range partitioning via `RANGE_BUCKET`), and tables where
+`clustering_columns IS NULL` lack clustering on high-cardinality filtering and
+grouping columns (`WHERE` and `GROUP BY`). `TABLES`, `COLUMNS`, and
+`TABLE_OPTIONS` support dataset (`{dataset_id}`) or regional (`region-{region}`)
+scoping.
+
+```googlesql
+-- Verify whether referenced tables have DATE, TIMESTAMP, DATETIME, or INT64
+-- integer-range partitioning, high-cardinality clustering columns, and
+-- require_partition_filter enabled:
+SELECT
+  c.table_schema AS dataset_id,
+  c.table_name,
+  MAX(IF(c.is_partitioning_column = 'YES', c.column_name, NULL))
+    AS partitioning_column,
+  MAX(IF(c.is_partitioning_column = 'YES', c.data_type, NULL))
+    AS partitioning_data_type,
+  CASE MAX(IF(c.is_partitioning_column = 'YES', c.data_type, NULL))
+    WHEN 'DATE' THEN 'DATE partitioning'
+    WHEN 'TIMESTAMP' THEN 'TIMESTAMP partitioning'
+    WHEN 'DATETIME' THEN 'DATETIME partitioning'
+    WHEN 'INT64' THEN 'INT64 integer-range partitioning'
+    ELSE 'UNPARTITIONED'
+    END AS partitioning_type,
+  STRING_AGG(
+    IF(c.clustering_ordinal_position IS NOT NULL, c.column_name, NULL),
+    ', '
+    ORDER BY c.clustering_ordinal_position)
+    AS clustering_columns,  -- High-cardinality filtering and grouping columns in CLUSTER BY
+  COALESCE(MAX(opt.option_value), 'false') AS require_partition_filter
+FROM
+  `{project_id}`.`{dataset_id}`.INFORMATION_SCHEMA.COLUMNS AS c
+INNER JOIN
+  `{project_id}`.`{dataset_id}`.INFORMATION_SCHEMA.TABLES AS t
+  ON
+    c.table_catalog = t.table_catalog
+    AND c.table_schema = t.table_schema
+    AND c.table_name = t.table_name
+LEFT JOIN
+  `{project_id}`.`{dataset_id}`.INFORMATION_SCHEMA.TABLE_OPTIONS AS opt
+  ON
+    c.table_catalog = opt.table_catalog
+    AND c.table_schema = opt.table_schema
+    AND c.table_name = opt.table_name
+    AND opt.option_name = 'require_partition_filter'
+WHERE
+  t.table_type = 'BASE TABLE'
+GROUP BY
+  c.table_schema,
+  c.table_name
+ORDER BY
+  c.table_name;
+```
+
+## Search Index Coverage Query
+
+Inspect search index status, coverage, backlog, and storage for a dataset. A
+`coverage_percentage` of 0 means the index is not usable in a `SEARCH` query,
+even if some data has already been indexed. An index on a base table smaller
+than 10 GB is not populated, so its `coverage_percentage` stays 0.
+
+```googlesql
+SELECT
+  table_name,
+  index_name,
+  index_status,
+  coverage_percentage,
+  unindexed_row_count,
+  ROUND(total_logical_bytes / POWER(1024, 3), 2) AS index_logical_gib,
+  analyzer,
+  last_refresh_time,
+  ddl
+FROM
+  `{project_id}`.`{dataset_id}`.INFORMATION_SCHEMA.SEARCH_INDEXES
+ORDER BY
+  coverage_percentage ASC;
 ```
 
 ## Placeholder Definitions

@@ -1,7 +1,7 @@
 ---
 name: cloud-databases-onboarding
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
   category: Databases
 description: >-
   Guides users through discovering their database requirements, recommends a
@@ -17,6 +17,15 @@ This skill provides domain instructions, decision matrices, and
 Infrastructure-as-Code workflows to guide users through discovering their exact
 database requirements, selecting an optimal Google Cloud database service, and
 drafting starter resource provisioning code for user review.
+
+## Attribution
+
+**MUST READ**: Before executing any `gcloud`, REST API, or MCP command, you
+MUST read [Usage Attribution](references/attribution.md). For commands executed
+directly in the terminal (never in generated scripts, Terraform, or user code),
+prefix `gcloud` with
+`CLOUDSDK_METRICS_REQUEST_ATTRIBUTION="agent-skills/1.0 (skill:cloud-databases-onboarding)"`
+and append `agent-skills/1.0 (skill:cloud-databases-onboarding)` to `User-Agent` headers.
 
 ## Validation & Progressive Disclosure
 

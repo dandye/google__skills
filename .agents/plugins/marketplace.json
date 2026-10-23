@@ -8,7 +8,7 @@
       "name": "alloydb",
       "source": {
         "source": "url",
-        "url": "https://github.com/gemini-cli-extensions/alloydb.git",
+        "url": "https://github.com/GoogleCloudPlatform/alloydb-plugin.git",
         "ref": "0.2.0"
       },
       "description": "Create, connect, and interact with an AlloyDB for PostgreSQL database and data.",
@@ -22,8 +22,8 @@
       "name": "alloydb-omni",
       "source": {
         "source": "url",
-        "url": "https://github.com/gemini-cli-extensions/alloydb-omni.git",
-        "ref": "0.2.1"
+        "url": "https://github.com/GoogleCloudPlatform/alloydb-omni-plugin.git",
+        "ref": "0.2.2"
       },
       "description": "Create, connect, and interact with an AlloyDB Omni database and data.",
       "policy": {
@@ -31,6 +31,20 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Databases"
+    },
+    {
+      "name": "bigquery",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/GoogleCloudPlatform/bigquery-data-analytics-plugin.git",
+        "ref": "0.2.5"
+      },
+      "description": "Data Analytics skills for BigQuery.",
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Data Warehousing & Data Lakes"
     },
     {
       "name": "bigtable",
@@ -50,7 +64,7 @@
       "name": "cloud-sql-mysql",
       "source": {
         "source": "url",
-        "url": "https://github.com/gemini-cli-extensions/cloud-sql-mysql.git",
+        "url": "https://github.com/GoogleCloudPlatform/cloud-sql-mysql-plugin.git",
         "ref": "0.2.0"
       },
       "description": "Connect and interact with a Cloud SQL for MySQL database and data.",
@@ -64,7 +78,7 @@
       "name": "cloud-sql-postgresql",
       "source": {
         "source": "url",
-        "url": "https://github.com/gemini-cli-extensions/cloud-sql-postgresql.git",
+        "url": "https://github.com/GoogleCloudPlatform/cloud-sql-postgresql-plugin.git",
         "ref": "0.4.0"
       },
       "description": "Create, connect, and interact with a Cloud SQL for PostgreSQL database and data.",
@@ -78,7 +92,7 @@
       "name": "cloud-sql-sqlserver",
       "source": {
         "source": "url",
-        "url": "https://github.com/gemini-cli-extensions/cloud-sql-sqlserver.git",
+        "url": "https://github.com/GoogleCloudPlatform/cloud-sql-sqlserver-plugin.git",
         "ref": "0.2.0"
       },
       "description": "Connect to Cloud SQL for SQL Server.",
@@ -89,25 +103,11 @@
       "category": "Databases"
     },
     {
-      "name": "firestore-native",
+      "name": "data-agent-kit",
       "source": {
         "source": "url",
-        "url": "https://github.com/gemini-cli-extensions/firestore-native.git",
-        "ref": "0.3.4"
-      },
-      "description": "Connect and interact with Cloud Firestore.",
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Databases"
-    },
-    {
-      "name": "data-agent-kit-starter-pack",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/gemini-cli-extensions/data-agent-kit-starter-pack.git",
-        "ref": "0.8.0"
+        "url": "https://github.com/GoogleCloudPlatform/data-agent-kit-plugin.git",
+        "ref": "1.0.0"
       },
       "description": "This plugin provides a specialized suite of skills for data engineers and database practitioners working on Google Cloud. It acts as an expert assistant, allowing you to use natural language prompts in your preferred coding agent to architect complex data pipelines, transform data with dbt, write Spark and BigQuery SQL notebooks, and orchestrate end-to-end workflows across GCP's data ecosystem.",
       "policy": {
@@ -117,80 +117,10 @@
       "category": "Databases"
     },
     {
-      "name": "google-cloud-storage",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/gemini-cli-extensions/google-cloud-storage.git",
-        "ref": "2.6.0"
-      },
-      "description": "Vetted Google Cloud Storage skills for your coding agent.",
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Storage"
-    },
-    {
-      "name": "looker",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/gemini-cli-extensions/looker.git",
-        "ref": "0.3.10"
-      },
-      "description": "Connect to Looker.",
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Business Intelligence & Analytics"
-    },
-    {
-      "name": "oracledb",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/gemini-cli-extensions/oracledb.git",
-        "ref": "0.2.6"
-      },
-      "description": "Connect, query, and interact with Oracle Databases and their data within Gemini CLI.",
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Databases"
-    },
-    {
-      "name": "spanner",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/gemini-cli-extensions/spanner.git",
-        "ref": "0.3.5"
-      },
-      "description": "Connect and interact with Spanner data using natural language.",
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Databases"
-    },
-    {
-      "name": "knowledge-catalog",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/gemini-cli-extensions/knowledge-catalog.git",
-        "ref": "0.5.3"
-      },
-      "description": "Skills for Knowledge Catalog.",
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Data Governance & Management"
-    },
-    {
       "name": "dataproc",
       "source": {
         "source": "url",
-        "url": "https://github.com/gemini-cli-extensions/dataproc.git",
+        "url": "https://github.com/GoogleCloudPlatform/dataproc-plugin.git",
         "ref": "0.1.0"
       },
       "description": "Skills for Dataproc.",
@@ -199,20 +129,6 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Data Processing & ETL"
-    },
-    {
-      "name": "bigquery",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/gemini-cli-extensions/bigquery-data-analytics.git",
-        "ref": "0.2.2"
-      },
-      "description": "Data Analytics skills for BigQuery.",
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Data Warehousing & Data Lakes"
     },
     {
       "name": "db-context-engineering",
@@ -225,6 +141,20 @@
       "description": "Context Engineering Agent for generating and maintaining QueryData / Conversational Analytics API context sets (templates, facets, value searches) for natural language to SQL tasks. Works with AlloyDB, Cloud SQL for MySQL, Cloud SQL for PostgreSQL, and Spanner."
     },
     {
+      "name": "firestore-native",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/GoogleCloudPlatform/firestore-native-plugin.git",
+        "ref": "0.3.4"
+      },
+      "description": "Connect and interact with Cloud Firestore.",
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Databases"
+    },
+    {
       "name": "google-cloud-developer",
       "source": "./plugins/cloud/google-cloud-developer",
       "description": "Core Google Cloud guidance for coding agents: first-project onboarding, authentication and credential selection, and safety-critical validation for gcloud CLI commands. Includes the Google Developer Knowledge MCP server for grounded, up-to-date Google Cloud documentation.",
@@ -233,6 +163,76 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Cloud Platform"
+    },
+    {
+      "name": "google-cloud-storage",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/GoogleCloudPlatform/google-cloud-storage-plugin.git",
+        "ref": "3.0.1"
+      },
+      "description": "Vetted Google Cloud Storage skills for your coding agent.",
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Storage"
+    },
+    {
+      "name": "knowledge-catalog",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/GoogleCloudPlatform/knowledge-catalog-plugin.git",
+        "ref": "0.5.4"
+      },
+      "description": "Skills for Knowledge Catalog.",
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Data Governance & Management"
+    },
+    {
+      "name": "looker",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/GoogleCloudPlatform/looker-plugin.git",
+        "ref": "0.3.11"
+      },
+      "description": "Connect to Looker.",
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Business Intelligence & Analytics"
+    },
+    {
+      "name": "oracledb",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/GoogleCloudPlatform/oracledb-plugin.git",
+        "ref": "0.2.7"
+      },
+      "description": "Connect, query, and interact with Oracle Databases and their data within Gemini CLI.",
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Databases"
+    },
+    {
+      "name": "spanner",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/GoogleCloudPlatform/spanner-plugin.git",
+        "ref": "0.3.6"
+      },
+      "description": "Connect and interact with Spanner data using natural language.",
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Databases"
     }
   ]
 }

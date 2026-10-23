@@ -9,31 +9,31 @@ and Assignment views in BigQuery `INFORMATION_SCHEMA`.
 -   [View Scoping & Qualification Matrix](#view-scoping-qualification-matrix)
     (Lines 38-57)
 -   [1. Jobs & Compute Telemetry Views](#1-jobs-compute-telemetry-views) (Lines
-    58-250)
+    58-268)
     -   [`INFORMATION_SCHEMA.JOBS` (and `_BY_PROJECT`, `_BY_ORGANIZATION`, `_BY_USER`, `_BY_FOLDER`)](#information_schemajobs-and-_by_project-_by_organization-_by_user-_by_folder)
-        (Lines 60-137)
+        (Lines 60-177)
     -   [`INFORMATION_SCHEMA.JOBS_TIMELINE` (and `_BY_PROJECT`, `_BY_ORGANIZATION`, `_BY_USER`, `_BY_FOLDER`)](#information_schemajobs_timeline-and-_by_project-_by_organization-_by_user-_by_folder)
-        (Lines 138-215)
+        (Lines 178-233)
     -   [`INFORMATION_SCHEMA.SESSIONS_BY_USER` (and `_BY_PROJECT`)](#information_schemasessions_by_user-and-_by_project)
-        (Lines 216-250)
+        (Lines 234-268)
 -   [2. Capacity, Reservations & Commitments Views](#2-capacity-reservations-commitments-views)
-    (Lines 251-570)
+    (Lines 269-588)
     -   [`INFORMATION_SCHEMA.RESERVATIONS` (and `_BY_PROJECT`)](#information_schemareservations-and-_by_project)
-        (Lines 253-291)
+        (Lines 271-309)
     -   [`INFORMATION_SCHEMA.RESERVATION_CHANGES` (and `_BY_PROJECT`)](#information_schemareservation_changes-and-_by_project)
-        (Lines 292-334)
+        (Lines 310-352)
     -   [`INFORMATION_SCHEMA.RESERVATIONS_TIMELINE` (and `_BY_PROJECT`)](#information_schemareservations_timeline-and-_by_project)
-        (Lines 335-408)
+        (Lines 353-426)
     -   [`INFORMATION_SCHEMA.CAPACITY_COMMITMENTS` (and `_BY_PROJECT`)](#information_schemacapacity_commitments-and-_by_project)
-        (Lines 409-439)
+        (Lines 427-457)
     -   [`INFORMATION_SCHEMA.CAPACITY_COMMITMENT_CHANGES_BY_PROJECT` (and `_CHANGES`)](#information_schemacapacity_commitment_changes_by_project-and-_changes)
-        (Lines 440-478)
+        (Lines 458-496)
     -   [`INFORMATION_SCHEMA.ASSIGNMENTS` (and `_BY_PROJECT`)](#information_schemaassignments-and-_by_project)
-        (Lines 479-509)
+        (Lines 497-527)
     -   [`INFORMATION_SCHEMA.ASSIGNMENT_CHANGES_BY_PROJECT` (and `_CHANGES`)](#information_schemaassignment_changes_by_project-and-_changes)
-        (Lines 510-544)
+        (Lines 528-562)
     -   [`INFORMATION_SCHEMA.BI_CAPACITIES` (and `BI_CAPACITY_CHANGES`)](#information_schemabi_capacities-and-bi_capacity_changes)
-        (Lines 545-570)
+        (Lines 563-588)
 
 ## View Scoping & Qualification Matrix
 
@@ -85,7 +85,7 @@ parent-child script hierarchy, and error classifications. Retention is 180 days.
 <!-- mdformat off -->
 | Column Name | Data Type | Physical Unit | Description & Conversion Formula |
 | :--- | :--- | :--- | :--- |
-| `bi_engine_statistics` | `RECORD` | Struct | BI Engine execution mode (`mode`, `reasons`). |
+| `bi_engine_statistics` | `RECORD` | Struct | BI Engine execution mode (`bi_engine_mode`, `acceleration_mode`, `bi_engine_reasons`). |
 | `cache_hit` | `BOOLEAN` | Boolean | `TRUE` if query results were served from deterministic cache (0 billed bytes). |
 | `continuous` | `BOOLEAN` | Boolean | Whether the job is a continuous query. |
 | `continuous_query_info.output_watermark` | `TIMESTAMP` | UTC Timestamp | Point up to which continuous query has successfully processed data. |
@@ -99,7 +99,7 @@ parent-child script hierarchy, and error classifications. Retention is 180 days.
 | `folder_numbers` | `ARRAY<INT64>` | Array | Folder hierarchy IDs containing the project (only populated in `JOBS_BY_FOLDER`). |
 | `job_creation_reason.code` | `STRING` | Enum | High-level job creation reason: `'REQUESTED'`, `'LONG_RUNNING'`, `'LARGE_RESULTS'`, `'OTHER'`. |
 | `job_id` | `STRING` | UUID | Unique job identifier within project and region (e.g. `bquxjob_1234`). |
-| `job_stages` | `ARRAY<RECORD>` | Struct Array | Query execution plan stages, read/compute/write ratios, records read, and shuffle spill statistics. |
+| `job_stages` | `ARRAY<RECORD>` | Struct Array | Query execution plan stages, read/compute/write ratios, records read, and shuffle spill statistics. Empty for queries that read from tables with row-level access policies. |
 | `job_type` | `STRING` | Enum | Job type: `'QUERY'`, `'LOAD'`, `'EXTRACT'`, `'COPY'`, or `NULL` (background job). |
 | `labels` | `ARRAY<RECORD>` | Struct Array | Key-value labels applied to the job for cost attribution. |
 | `materialized_view_statistics` | `RECORD` | Struct | Statistics of materialized views considered and chosen for query rewrite. |
@@ -134,6 +134,46 @@ parent-child script hierarchy, and error classifications. Retention is 180 days.
 | `user_email` | `STRING` | Email | (Clustering column) Email address or service account of the user who ran the job. |
 | `vector_search_statistics` | `RECORD` | Struct | Statistics for vector search queries. |
 <!-- mdformat on -->
+
+#### Nested `job_stages` Schema (Field in `JOBS`)
+
+The `job_stages` column in `JOBS` is an `ARRAY<RECORD>` where each element
+represents a discrete execution stage (Input, Compute, Shuffle, Join, Output) in
+the query plan (note that `job_stages` is empty for queries that read from
+tables with row-level access policies):
+
+*   `id` (`INT64`): Unique 0-indexed execution stage identifier.
+*   `name` (`STRING`): Stage identifier (e.g. `'S00: Input'`, `'S01:
+    Aggregate'`).
+*   `input_stages` (`ARRAY<INT64>`): Stage IDs whose outputs feed into this
+    stage.
+*   `start_ms` (`INT64`): Millisecond timestamp when the stage began.
+*   `end_ms` (`INT64`): Millisecond timestamp when the stage completed.
+*   `slot_ms` (`INT64`): Slot compute time consumed by this stage.
+*   `shuffle_output_bytes` (`INT64`): Bytes written to distributed shuffle.
+*   `shuffle_output_bytes_spilled` (`INT64`): Bytes spilled to disk due to
+    shuffle RAM pressure.
+*   `records_read` (`INT64`): Number of input records consumed.
+*   `records_written` (`INT64`): Number of output records produced.
+*   `parallel_inputs` (`INT64`): Maximum parallel worker shards allocated.
+*   `completed_parallel_inputs` (`INT64`): Shards successfully finished.
+*   `wait_ratio_avg`, `wait_ratio_max` (`FLOAT64`): Fraction (`0.0-1.0`) of
+    time the average or slowest worker in the stage spent waiting to be
+    scheduled on available slots relative to the longest time any worker in any
+    stage spent in any phase.
+*   `wait_ms_avg`, `wait_ms_max` (`INT64`): Milliseconds the average or slowest
+    worker in the stage spent waiting to be scheduled on available slots.
+*   `read_ratio_avg`, `read_ratio_max`, `read_ms_avg`, `read_ms_max`
+    (`FLOAT64` / `INT64`): Relative ratio and duration (ms) workers spent
+    reading input table or shuffle data.
+*   `compute_ratio_avg`, `compute_ratio_max`, `compute_ms_avg`, `compute_ms_max`
+    (`FLOAT64` / `INT64`): Relative ratio and duration (ms) workers spent in CPU
+    computation.
+*   `write_ratio_avg`, `write_ratio_max`, `write_ms_avg`, `write_ms_max`
+    (`FLOAT64` / `INT64`): Relative ratio and duration (ms) workers spent
+    writing intermediate shuffle or final output data.
+*   `status` (`STRING`): `'COMPLETE'`, `'RUNNING'`, `'FAILED'`, `'CANCELLED'`.
+*   `steps` (`ARRAY<RECORD>`): Pipeline operations (`kind`, `substeps`).
 
 ### `INFORMATION_SCHEMA.JOBS_TIMELINE` (and `_BY_PROJECT`, `_BY_ORGANIZATION`, `_BY_USER`, `_BY_FOLDER`)
 
@@ -190,28 +230,6 @@ starvation.
 | `transaction_id` | `STRING` | UUID | ID of the transaction in which this job ran, if any. |
 | `user_email` | `STRING` | Email | (Clustering column) Email address or service account of the user who ran the job. |
 <!-- mdformat on -->
-
-#### Nested `job_stages` Schema (Field in `JOBS`)
-
-The `job_stages` column in `JOBS` is an `ARRAY<RECORD>` where each element
-represents a discrete execution stage (Input, Compute, Shuffle, Join, Output) in
-the query plan:
-
-*   `id` (`INT64`): Unique 0-indexed execution stage identifier.
-*   `name` (`STRING`): Stage identifier (e.g. `'S00: Input'`, `'S01:
-    Aggregate'`).
-*   `start_ms` (`INT64`): Millisecond timestamp when the stage began.
-*   `end_ms` (`INT64`): Millisecond timestamp when the stage completed.
-*   `slot_ms` (`INT64`): Slot compute time consumed by this stage.
-*   `shuffle_output_bytes` (`INT64`): Bytes written to distributed shuffle.
-*   `shuffle_output_bytes_spilled` (`INT64`): Bytes spilled to disk due to
-    shuffle RAM pressure.
-*   `records_read` (`INT64`): Number of input records consumed.
-*   `records_written` (`INT64`): Number of output records produced.
-*   `parallel_inputs` (`INT64`): Maximum parallel worker shards allocated.
-*   `completed_parallel_inputs` (`INT64`): Shards successfully finished.
-*   `status` (`STRING`): `'COMPLETE'`, `'RUNNING'`, `'FAILED'`, `'CANCELLED'`.
-*   `steps` (`ARRAY<RECORD>`): Pipeline operations (`kind`, `substeps`).
 
 ### `INFORMATION_SCHEMA.SESSIONS_BY_USER` (and `_BY_PROJECT`)
 

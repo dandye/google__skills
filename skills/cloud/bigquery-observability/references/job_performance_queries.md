@@ -8,16 +8,21 @@ verifying BI Engine / metadata cache (cmeta) acceleration.
 ## Table of Contents
 
 -   [Single Job Performance & Stage Bottleneck Flags](#single-job-performance-stage-bottleneck-flags)
-    (Lines 22-71)
+    (Lines 27-76)
 -   [REST API Single-Job Point-Lookup & Stage Bottlenecks](#rest-api-single-job-point-lookup-stage-bottlenecks)
-    (Lines 72-92)
--   [Finding Comparable Jobs](#finding-comparable-jobs) (Lines 93-124)
+    (Lines 77-97)
+-   [Finding Comparable Jobs](#finding-comparable-jobs) (Lines 98-129)
 -   [BI Engine Acceleration Usage](#bi-engine-acceleration-usage) (Lines
-    125-147)
+    130-152)
 -   [Table Metadata Cache (cmeta) Usage](#table-metadata-cache-cmeta-usage)
-    (Lines 148-174)
+    (Lines 153-179)
+-   [Search Index Usage](#search-index-usage) (Lines 180-208)
+-   [Materialized View Rewrite Usage](#materialized-view-rewrite-usage) (Lines
+    209-244)
 -   [Query Performance Variance & Outlier Discovery](#query-performance-variance-outlier-discovery)
-    (Lines 175-208)
+    (Lines 245-279)
+-   [Stage Row Expansion, Shuffle Spill & Join Insights](#stage-row-expansion-shuffle-spill-join-insights)
+    (Lines 280-338)
 
 ## Single Job Performance & Stage Bottleneck Flags
 
@@ -172,6 +177,71 @@ ORDER BY
 LIMIT 50;
 ```
 
+## Search Index Usage
+
+Verify whether queries used a search index (`index_usage_mode` is `UNUSED`,
+`PARTIALLY_USED`, or `FULLY_USED`) and diagnose why an index was not used.
+`index_unused_reasons` is populated only for `UNUSED` and `PARTIALLY_USED`, so
+the `LEFT JOIN` keeps `FULLY_USED` jobs in the result.
+
+```sql
+SELECT
+  job_id,
+  creation_time,
+  total_slot_ms,
+  total_bytes_processed,
+  search_statistics.index_usage_mode,
+  unused_reason.code AS unused_reason_code,
+  unused_reason.base_table.table_id AS base_table_id,
+  unused_reason.index_name
+FROM
+  `{project_id}`.`region-{region}`.INFORMATION_SCHEMA.JOBS_BY_PROJECT
+LEFT JOIN
+  UNNEST(search_statistics.index_unused_reasons) AS unused_reason
+WHERE
+  creation_time >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 3 DAY)
+  AND search_statistics IS NOT NULL
+ORDER BY
+  creation_time DESC
+LIMIT 50;
+```
+
+## Materialized View Rewrite Usage
+
+Verify whether queries used a materialized view (`chosen`), including queries
+that smart tuning rewrote from the base tables, and diagnose why a candidate
+view was rejected (`rejected_reason`, for example `NO_DATA`, `COST`, or
+`BASE_TABLE_DATA_CHANGE`). A view that is not listed in
+`materialized_view_statistics` did not match the query shape. If many views are
+considered, the list might be incomplete. Automatic refresh jobs have
+`materialized_view_refresh` in the job ID, so the query excludes them; to see
+refresh cost instead, query `JOBS_BY_PROJECT` in the view's project without the
+`UNNEST`, filter on `job_id LIKE '%materialized_view_refresh_%'`, and read
+`total_slot_ms`, `total_bytes_processed`, and
+`materialized_view_statistics.materialized_view[SAFE_OFFSET(0)].rejected_reason`.
+
+```sql
+SELECT
+  job_id,
+  creation_time,
+  total_slot_ms,
+  total_bytes_processed,
+  mv.table_reference.dataset_id AS mv_dataset_id,
+  mv.table_reference.table_id AS mv_table_id,
+  mv.chosen,
+  mv.estimated_bytes_saved,
+  mv.rejected_reason
+FROM
+  `{project_id}`.`region-{region}`.INFORMATION_SCHEMA.JOBS_BY_PROJECT,
+  UNNEST(materialized_view_statistics.materialized_view) AS mv
+WHERE
+  creation_time >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 3 DAY)
+  AND job_id NOT LIKE '%materialized_view_refresh_%'
+ORDER BY
+  creation_time DESC
+LIMIT 50;
+```
+
 ## Query Performance Variance & Outlier Discovery
 
 Identify queries that experienced the highest execution variance compared to
@@ -204,5 +274,65 @@ WHERE
   AND query_info.performance_insights.avg_previous_execution_ms IS NOT NULL
 ORDER BY
   variance_ratio DESC
+LIMIT 50;
+```
+
+## Stage Row Expansion, Shuffle Spill & Join Insights
+
+Unnest `job_stages` in `INFORMATION_SCHEMA.JOBS_BY_PROJECT` across recent jobs
+(or filter by `job_id = '{job_id}'` for a single job) to detect join row
+explosions (`records_written >> records_read` caused by missing `ON` conditions,
+unintentional `CROSS JOIN`s, or non-selective/many-to-many join predicates),
+shuffle spills to disk (`shuffle_output_bytes_spilled > 0`), worker scheduling
+wait delays (`wait_ratio_avg`, `wait_ms_avg`), and engine-surfaced join/skew
+insights (`high_cardinality_joins`, `partition_skew`). Note that `job_stages` is
+empty for queries that read from tables with row-level access policies.
+
+```sql
+SELECT
+  j.job_id,
+  j.user_email,
+  j.creation_time,
+  j.total_slot_ms,
+  stage.id AS stage_id,
+  stage.name AS stage_name,
+  stage.records_read,
+  stage.records_written,
+  ROUND(
+    SAFE_DIVIDE(stage.records_written, NULLIF(stage.records_read, 0)), 2)
+    AS row_expansion_ratio,
+  stage.shuffle_output_bytes,
+  stage.shuffle_output_bytes_spilled,
+  stage.slot_ms AS stage_slot_ms,
+  stage.wait_ratio_avg,
+  stage.wait_ratio_max,
+  stage.wait_ms_avg,
+  stage.wait_ms_max,
+  stage.compute_ratio_avg,
+  stage.compute_ratio_max,
+  insight.slot_contention,
+  insight.insufficient_shuffle_quota,
+  insight.high_cardinality_joins,
+  insight.partition_skew
+FROM
+  `{project_id}`.`region-{region}`.INFORMATION_SCHEMA.JOBS_BY_PROJECT AS j,
+  UNNEST(j.job_stages) AS stage
+LEFT JOIN
+  UNNEST(
+    j.query_info.performance_insights.stage_performance_standalone_insights)
+    AS insight
+  ON stage.id = insight.stage_id
+WHERE
+  j.creation_time >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 7 DAY)
+  AND j.job_type = 'QUERY'
+  AND j.state = 'DONE'
+  AND (
+    stage.records_written > stage.records_read * 10
+    OR stage.shuffle_output_bytes_spilled > 0
+    OR ARRAY_LENGTH(insight.high_cardinality_joins) > 0
+    OR ARRAY_LENGTH(insight.partition_skew.skew_sources) > 0)
+ORDER BY
+  row_expansion_ratio DESC,
+  stage.slot_ms DESC
 LIMIT 50;
 ```

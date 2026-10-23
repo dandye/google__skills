@@ -1,7 +1,7 @@
 ---
 name: bigquery-observability
 metadata:
-  version: v1
+  version: "1.2.1"
   category: BigDataAndAnalytics
 description: >-
   Provides data-retrieval best practices, tool selection guidance, and
@@ -19,6 +19,15 @@ description: >-
 
 # BigQuery Observability
 
+## Attribution
+
+**MUST READ**: Before executing any `gcloud`, REST API, or MCP command, you
+MUST read [Usage Attribution](references/attribution.md). For commands executed
+directly in the terminal (never in generated scripts, Terraform, or user code),
+prefix `gcloud` with
+`CLOUDSDK_METRICS_REQUEST_ATTRIBUTION="agent-skills/1.0 (skill:bigquery-observability)"`
+and append `agent-skills/1.0 (skill:bigquery-observability)` to `User-Agent` headers.
+
 ## Tool Selection
 
 <!-- mdformat off -->
@@ -27,7 +36,7 @@ description: >-
 | --- | --- | --- | --- |
 | **`INFORMATION_SCHEMA` (`I_S`)** | Historical analysis, cohort comparison (`normalized_literals`), discovery of fast/slow windows, reservation/project timelines, multi-job aggregates, cost/billing tracing. | Flexible SQL querying across `JOBS`, `JOBS_TIMELINE`, and `RESERVATIONS`; supports custom time windows and grouping. | Avoid for high-frequency real-time polling or single-job point-lookups (can consume slots and take seconds to execute). |
 | **REST API (`jobs.api` / `reservation.api`)** | Single-job point-lookup, real-time stage bottleneck diagnosis, automated pipeline status checks, reservation/capacity commitment configuration inspection (`reservations.get`, `reservations.list`). | Zero-SQL overhead, fast REST/CLI point-lookups (`bq show -j`, `bq show --reservation`), instant access to `performanceInsights`, `queryPlan`, and structural metadata. | Avoid for aggregate analysis across thousands of jobs, cross-project historical comparison, or system timeline aggregations. |
-| **`Cloud Monitoring` (Monarch / Charts)** | Real-time alerting, fleet-wide dashboards, continuous slot utilization tracking, high-level SLA/SLO monitoring. | Out-of-the-box charts for slot utilization, query throughput, `PENDING` queue depth, and execution latency; low-latency alerting without running queries. | Avoid for SQL-level debugging, individual query text inspection, or stage-level execution detail. |
+| **`Cloud Monitoring` (Metrics Explorer / Charts)** | Real-time alerting, fleet-wide dashboards, continuous slot utilization tracking, high-level SLA/SLO monitoring. | Out-of-the-box charts for slot utilization, query throughput, `PENDING` queue depth, and execution latency; low-latency alerting without running queries. | Avoid for SQL-level debugging, individual query text inspection, or stage-level execution detail. |
 
 <!-- mdformat on -->
 
@@ -67,6 +76,15 @@ Google Cloud environment and project are configured:
         *   `roles/bigquery.resourceViewer` or `roles/bigquery.admin`:
             Organization-level jobs and reservation telemetry.
         *   `roles/monitoring.viewer`: Cloud Monitoring metrics.
+
+6.  **Companion Skills Installation**:
+    This skill is part of a 3-pillar operations suite (`bigquery-observability`,
+    `bigquery-optimization`, `bigquery-troubleshooting`). If any companion skill
+    is not yet installed in your environment, install the full suite:
+
+    ```bash
+    npx skills add google/skills --skill bigquery-observability --skill bigquery-optimization --skill bigquery-troubleshooting
+    ```
 
 ## Workflow
 
@@ -200,7 +218,7 @@ analytical need:
 *   **Storage Footprints & Usage (Bytes Stored)**
     (`references/storage_footprints.md`): Storage snapshot queries, compression
     ratio calculations, Time Travel / Fail-Safe churn, daily average GiB
-    time-integrals, and billing model evaluation.
+    time-integrals, billing model evaluation, and search index coverage.
 
 ### Performance & Troubleshooting Guides
 
@@ -208,7 +226,8 @@ analytical need:
     Queries for evaluating individual and aggregate job performance, stage
     bottleneck flags, comparable jobs via normalized literals
     (`query_info.query_hashes.normalized_literals`), BI Engine acceleration,
-    metadata cache (cmeta) acceleration, and execution variance outliers.
+    metadata cache (cmeta) acceleration, search index usage, materialized view
+    rewrite usage, and execution variance outliers.
 *   **Resource Contention Queries**
     (`references/resource_contention_queries.md`): Queries for diagnosing slot
     contention, queue latency, per-minute concurrency/queue timelines, and

@@ -1,7 +1,7 @@
 ---
 name: google-cloud-solution-agentic-ai-borderless-data-lakehouse
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
   category: MultiProductSolutions
 description: >-
   Discovers requirements and designs a borderless open data lakehouse using
@@ -18,6 +18,12 @@ description: >-
 
 Follow this workflow to help users design and implement a custom multi-product
 solution in the cloud for a given workload, use case, or requirement.
+
+## Attribution
+
+**MUST READ**: Before executing any `gcloud`, REST API, or MCP command, you
+MUST read and follow the instructions in
+[Usage Attribution](references/attribution.md).
 
 ## Product Renaming & Terminology
 

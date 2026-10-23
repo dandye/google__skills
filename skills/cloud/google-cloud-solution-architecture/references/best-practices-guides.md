@@ -24,9 +24,9 @@
 | [Observability in Google Cloud](#observability-in-google-cloud) | Lines 212-220 |
 | [Pub/Sub](#pub-sub) | Lines 221-226 |
 | [Security Command Center](#security-command-center) | Lines 227-231 |
-| [Security](#security) | Lines 232-246 |
-| [Spanner](#spanner) | Lines 247-261 |
-| [VPC Service Controls](#vpc-service-controls) | Lines 262-265 |
+| [Security](#security) | Lines 232-249 |
+| [Spanner](#spanner) | Lines 250-264 |
+| [VPC Service Controls](#vpc-service-controls) | Lines 265-268 |
 
 ## <a id="multiple-products"></a>Best practices covering multiple products
 
@@ -232,9 +232,12 @@
 ## <a id="security"></a>Security
 
 - https://docs.cloud.google.com/docs/security/best-practices-continuous-access-to-google-cloud.md.txt
+- https://docs.cloud.google.com/docs/security/bps-for-protecting-against-cryptocurrency-attacks.md.txt
 - https://docs.cloud.google.com/docs/security/bps-for-protecting-developer-credentials.md.txt
 - https://docs.cloud.google.com/docs/security/genai-security-bps.md.txt
 - https://docs.cloud.google.com/docs/security/gke-security-bps.md.txt
+- https://docs.cloud.google.com/docs/security/mitigating-ransomware-attacks.md.txt
+- https://docs.cloud.google.com/docs/security/owasp-top-ten-mitigation.md.txt
 - https://docs.cloud.google.com/docs/security/security-best-practices-catalog/agents-applications.md.txt
 - https://docs.cloud.google.com/docs/security/security-best-practices-catalog/data-management.md.txt
 - https://docs.cloud.google.com/docs/security/security-best-practices-catalog.md.txt

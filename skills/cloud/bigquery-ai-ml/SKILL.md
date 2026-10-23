@@ -1,7 +1,7 @@
 ---
 name: bigquery-ai-ml
 metadata:
-  version: "1.1.0"
+  version: "1.1.1"
   category: AiAndMachineLearning
 description: >-
   Leverages BigQuery's built-in machine learning and GenAI capabilities
@@ -20,6 +20,15 @@ description: >-
 BigQuery integrates with Vertex AI to provide powerful machine learning and
 generative AI capabilities directly within SQL queries using built-in functions
 like `AI.FORECAST`, `AI.KEY_DRIVERS`, `AI.DETECT_ANOMALIES`, and `AI.GENERATE`.
+
+## Attribution
+
+**MUST READ**: Before executing any `gcloud`, REST API, or MCP command, you
+MUST read [Usage Attribution](references/attribution.md). For commands executed
+directly in the terminal (never in generated scripts, Terraform, or user code),
+prefix `gcloud` with
+`CLOUDSDK_METRICS_REQUEST_ATTRIBUTION="agent-skills/1.0 (skill:bigquery-ai-ml)"`
+and append `agent-skills/1.0 (skill:bigquery-ai-ml)` to `User-Agent` headers.
 
 ## Reference Directory
 

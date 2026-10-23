@@ -1,9 +1,10 @@
 ---
 name: google-cloud-filestore-log-troubleshooting
 metadata:
+  version: "1.0.1"
   category: Storage
 description: >-
-  Diagnoses and resolves Google Cloud Filestore client mount failures,
+  Diagnoses and resolves Filestore client mount failures on Google Cloud,
   permission errors (EACCES), and network timeouts (ETIMEDOUT). Use when an NFS
   mount hangs or fails from a Compute Engine VM, GKE pod, Cloud Run service, or
   Vertex AI workload, when `mount.nfs` reports "Connection timed out" or "access
@@ -16,9 +17,9 @@ description: >-
 
 <!-- disableFinding(LINE_OVER_80) -->
 
-# Google Cloud Filestore Log-Based Troubleshooting
+# Filestore Log-Based Troubleshooting
 
-Diagnoses, troubleshoots, and remediates Google Cloud Filestore client mount failures, permission errors (`EACCES`), and network timeouts (`ETIMEDOUT`) across projects.
+Diagnoses, troubleshoots, and remediates Filestore client mount failures, permission errors (`EACCES`), and network timeouts (`ETIMEDOUT`) across projects.
 
 ## Prerequisites & Quick Start
 

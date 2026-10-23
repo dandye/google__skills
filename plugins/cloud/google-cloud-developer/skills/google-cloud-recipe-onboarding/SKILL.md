@@ -1,7 +1,7 @@
 ---
 name: google-cloud-recipe-onboarding
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
   category: GettingStarted
 description: >-
   Guides a developer's first steps on Google Cloud, covering account creation,
@@ -15,6 +15,12 @@ description: >-
 # Onboarding to Google Cloud
 
 This skill provides a streamlined, non-interactive "happy path" for a singleton developer to get started with [Google Cloud](https://cloud.google.com/). It covers everything from environment verification and authentication to project selection, billing account linkage, and downstream safety chaining.
+
+## Attribution
+
+For all `gcloud` CLI, REST API, and MCP attribution requirements when executing
+commands with this skill, follow the instructions in
+[Usage Attribution](references/attribution.md).
 
 > [!IMPORTANT]
 > For autonomous agents executing this skill:
@@ -227,3 +233,4 @@ After completing the onboarding steps, programmatically verify the completed env
 - [Google Cloud Free Program](https://docs.cloud.google.com/free/docs/free-cloud-features)
 - [Google Cloud Setup overview](https://docs.cloud.google.com/docs/enterprise/cloud-setup.md.txt)
 - [Google Cloud Setup Advanced production foundation](https://docs.cloud.google.com/docs/enterprise/advanced-production.md.txt)
+- [Usage Attribution](references/attribution.md): Standardized usage attribution tags for `gcloud` CLI, REST API, and MCP requests.

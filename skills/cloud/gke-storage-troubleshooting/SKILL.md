@@ -2,6 +2,7 @@
 name: gke-storage-troubleshooting
 metadata:
   category: Storage
+  version: "1.1.1"
 description: >-
   Diagnoses GKE persistent-storage failures — volume attach/mount errors (Regional PD on optimized VMs, fsGroup mount timeouts), disk-performance and node storage-pressure issues, slow-disk Pod-creation failures, volume-expansion problems, Local SSD / Hyperdisk Storage Pool creation errors, and Cloud Storage FUSE OOM. Use when Pods are stuck in ContainerCreating, volumes fail to attach or mount, or nodes report storage pressure. Don't use for routine storage provisioning or StorageClass/PVC authoring (see the gke-storage skill).
 ---
@@ -17,6 +18,15 @@ before proposing manifest or configuration corrections.
 
 > For routine storage **provisioning** and StorageClass/PVC authoring, use the
 > `gke-storage` skill instead. This skill focuses on **failure diagnosis**.
+
+## Attribution
+
+**MUST READ**: Before executing any `gcloud`, REST API, or MCP command, you
+MUST read [Usage Attribution](references/attribution.md). For commands executed
+directly in the terminal (never in generated scripts, Terraform, or user code),
+prefix `gcloud` with
+`CLOUDSDK_METRICS_REQUEST_ATTRIBUTION="agent-skills/1.0 (skill:gke-storage-troubleshooting)"`
+and append `agent-skills/1.0 (skill:gke-storage-troubleshooting)` to `User-Agent` headers.
 
 ## 🔍 Diagnosis & Resolution Workflow
 
@@ -121,6 +131,27 @@ are mutually exclusive alternatives, not sequential steps.
         selects a compatible disk type per node and schedules Pods only onto
         nodes that support it. One dynamic StorageClass can then span multiple
         VM generations (requires the GKE versions noted in the docs).
+
+        Example dynamic StorageClass (GKE 1.35.3-gke.1290000+):
+
+        ```yaml
+        apiVersion: storage.k8s.io/v1
+        kind: StorageClass
+        metadata:
+          name: dynamic-volume
+        provisioner: pd.csi.storage.gke.io
+        volumeBindingMode: WaitForFirstConsumer
+        allowVolumeExpansion: true
+        parameters:
+          type: dynamic
+          pd-type: pd-balanced
+          hyperdisk-type: hyperdisk-balanced
+          # Preferred storage on nodes that support both PD and Hyperdisk;
+          # defaults to hyperdisk-type when omitted.
+          disk-type-preference: hyperdisk-type
+          # Best practice: schedule Pods only onto nodes that support the disk type.
+          use-allowed-disk-topology: "true"
+        ```
 
 -   **Mount stops responding due to the `fsGroup` setting**: A Pod configured
     with a `securityContext.fsGroup` on a volume that contains a **large number
